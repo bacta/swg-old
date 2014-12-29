@@ -1,0 +1,76 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.ocdsoft.bacta</groupId>
+  <artifactId>swg</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+    <name>swg</name>
+    <url>https://github.com/com.ocdsoft.bacta/swg</url>
+
+    <issueManagement>
+        <url>https://github.com/com.ocdsoft.bacta/swg/issues</url>
+        <system>GitHub Issues</system>
+    </issueManagement>
+
+    <scm>
+        <url>https://github.com/com.ocdsoft.bacta/swg</url>
+        <connection>scm:git:git://github.com/com.ocdsoft.bacta/swg.git</connection>
+        <developerConnection>scm:git:git@github.com:com.ocdsoft.bacta/swg.git</developerConnection>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <email>mustangcoupe69@gmail.com</email>
+            <name>Kyle Burkhardt</name>
+            <url>https://github.com/kyleburkhardt</url>
+            <id>kyleburkhardt</id>
+        </developer>
+    </developers>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <prerequisites>
+        <maven>3.0.4</maven>
+    </prerequisites>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+      <dependency>
+          <groupId>com.ocdsoft.bacta</groupId>
+          <artifactId>soe</artifactId>
+          <version>1.0.0-SNAPSHOT</version>
+          <scope>runtime</scope>
+      </dependency>
+      <dependency>
+          <groupId>com.ocdsoft.bacta</groupId>
+          <artifactId>engine</artifactId>
+          <version>1.0.0-SNAPSHOT</version>
+          <scope>runtime</scope>
+      </dependency>
+  </dependencies>
+</project>
