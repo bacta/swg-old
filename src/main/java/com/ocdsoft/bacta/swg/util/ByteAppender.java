@@ -1,24 +1,24 @@
 package com.ocdsoft.bacta.swg.util;
 
-import com.ocdsoft.bacta.swg.network.soe.buffer.SoeByteBuf;
-import com.ocdsoft.bacta.swg.network.soe.lang.UnicodeString;
-import com.ocdsoft.bacta.swg.network.swg.lang.UnsupportedTypeException;
-import com.ocdsoft.network.buffer.ByteBufSerializable;
-import io.netty.util.CharsetUtil;
+import com.ocdsoft.bacta.engine.buffer.ByteBufferSerializable;
+import com.ocdsoft.bacta.engine.lang.UnicodeString;
+import com.ocdsoft.bacta.engine.utils.BufferUtil;
+import com.ocdsoft.bacta.swg.lang.UnsupportedTypeException;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ByteAppender {
     private interface TypeAppender<T> {
-        void append(T value, io.netty.buffer.ByteBuf buffer);
+        void append(T value, ByteBuffer buffer);
     }
 
     private static final Map<Class<?>, TypeAppender<?>> appenders = new HashMap<Class<?>, TypeAppender<?>>();
-    private static final TypeAppender<ByteBufSerializable> messageWritableAppender = new TypeAppender<ByteBufSerializable>() {
+    private static final TypeAppender<ByteBufferSerializable> messageWritableAppender = new TypeAppender<ByteBufferSerializable>() {
         @Override
-        public void append(ByteBufSerializable value, io.netty.buffer.ByteBuf buffer) {
-            SoeByteBuf message = new SoeByteBuf(buffer) {
+        public void append(ByteBufferSerializable value, ByteBuffer buffer) {
+            ByteBuffer message = ByteBuffer.allocate(496); {
             }; //TODO remove this dirty hack.
 
             value.writeToBuffer(message);
@@ -28,68 +28,67 @@ public class ByteAppender {
     static {
         appenders.put(Boolean.class, new TypeAppender<Boolean>() {
             @Override
-            public void append(Boolean value, io.netty.buffer.ByteBuf buffer) {
-                buffer.writeBoolean(value);
+            public void append(Boolean value, ByteBuffer buffer) {
+                BufferUtil.putBoolean(buffer, value);
             }
         });
 
         appenders.put(Byte.class, new TypeAppender<Byte>() {
             @Override
-            public void append(Byte value, io.netty.buffer.ByteBuf buffer) {
-                buffer.writeByte(value);
+            public void append(Byte value, ByteBuffer buffer) {
+                buffer.put(value);
             }
         });
 
         appenders.put(Short.class, new TypeAppender<Short>() {
             @Override
-            public void append(Short value, io.netty.buffer.ByteBuf buffer) {
-                buffer.writeShort(value);
+            public void append(Short value, ByteBuffer buffer) {
+                buffer.putShort(value);
             }
         });
 
         appenders.put(Integer.class, new TypeAppender<Integer>() {
             @Override
-            public void append(Integer value, io.netty.buffer.ByteBuf buffer) {
-                buffer.writeInt(value);
+            public void append(Integer value, ByteBuffer buffer) {
+                buffer.putInt(value);
             }
         });
 
         appenders.put(Long.class, new TypeAppender<Long>() {
             @Override
-            public void append(Long value, io.netty.buffer.ByteBuf buffer) {
-                buffer.writeLong(value);
+            public void append(Long value, ByteBuffer buffer) {
+                buffer.putLong(value);
             }
         });
 
         appenders.put(Float.class, new TypeAppender<Float>() {
             @Override
-            public void append(Float value, io.netty.buffer.ByteBuf buffer) {
-                buffer.writeFloat(value);
+            public void append(Float value, ByteBuffer buffer) {
+                buffer.putFloat(value);
             }
         });
 
         appenders.put(String.class, new TypeAppender<String>() {
             @Override
-            public void append(String value, io.netty.buffer.ByteBuf buffer) {
-                buffer.writeShort((short) value.length());
-                buffer.writeBytes(value.getBytes(CharsetUtil.ISO_8859_1));
+            public void append(String value, ByteBuffer buffer) {
+                BufferUtil.putAscii(buffer, value);
             }
         });
 
         appenders.put(UnicodeString.class, new TypeAppender<UnicodeString>() {
             @Override
-            public void append(UnicodeString value, io.netty.buffer.ByteBuf buffer) {
-                buffer.writeInt(value.getString().length());
-                buffer.writeBytes(value.getString().getBytes(CharsetUtil.UTF_16LE));
+            public void append(UnicodeString value, ByteBuffer buffer) {
+                BufferUtil.putUnicode(buffer, value.getString());
+
             }
         });
 
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> void append(T value, io.netty.buffer.ByteBuf buffer) throws UnsupportedTypeException {
-        if (value instanceof ByteBufSerializable) {
-            messageWritableAppender.append((ByteBufSerializable) value, buffer);
+    public static <T> void append(T value, ByteBuffer buffer) throws UnsupportedTypeException {
+        if (value instanceof ByteBufferSerializable) {
+            messageWritableAppender.append((ByteBufferSerializable) value, buffer);
             return;
         }
 

@@ -1,5 +1,7 @@
 package com.ocdsoft.bacta.swg;
 
+import com.ocdsoft.bacta.soe.ServerType;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 

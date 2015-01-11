@@ -3,19 +3,18 @@ package com.ocdsoft.bacta.swg.router;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.assistedinject.Assisted;
-import com.ocdsoft.bacta.swg.network.soe.buffer.SoeByteBuf;
-import com.ocdsoft.bacta.swg.network.soe.client.SoeUdpClient;
-import com.ocdsoft.bacta.swg.network.soe.message.ReliableNetworkMessage;
-import com.ocdsoft.bacta.swg.network.soe.message.util.SoeMessageUtil;
-import com.ocdsoft.bacta.swg.network.swg.ServerType;
-import com.ocdsoft.bacta.swg.network.swg.SwgController;
-import com.ocdsoft.bacta.swg.network.swg.controller.SwgMessageController;
-import com.ocdsoft.bacta.swg.network.swg.util.ClientString;
-import com.ocdsoft.bacta.swg.shared.util.SOECRC32;
-import com.ocdsoft.network.annotation.ControllerScan;
+import com.ocdsoft.bacta.engine.network.ControllerScan;
+import com.ocdsoft.bacta.soe.ServerType;
+import com.ocdsoft.bacta.soe.connection.SoeUdpConnection;
+import com.ocdsoft.bacta.soe.message.ReliableNetworkMessage;
+import com.ocdsoft.bacta.soe.router.SwgMessageRouter;
+import com.ocdsoft.bacta.soe.util.ClientString;
+import com.ocdsoft.bacta.soe.util.SOECRC32;
+import com.ocdsoft.bacta.soe.util.SoeMessageUtil;
+import com.ocdsoft.bacta.swg.SwgController;
+import com.ocdsoft.bacta.swg.controller.SwgMessageController;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
-import io.netty.buffer.ByteBuf;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -27,13 +26,14 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.nio.ByteBuffer;
 import java.util.*;
 
-@ControllerScan(target = "com.ocdsoft.bacta")
-public class SwgDevelopMessageRouter<Client extends SoeUdpClient> implements SwgMessageRouter<Client> {
-    private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+@ControllerScan(target = "com.ocdsoft.bacta.swg.controller")
+public final class SwgDevelopMessageRouter<Connection extends SoeUdpConnection> implements SwgMessageRouter<Connection> {
+    private static final Logger logger = LoggerFactory.getLogger(SwgDevelopMessageRouter.class);
 
-    private final TIntObjectMap<SwgMessageController<Client>> controllers = new TIntObjectHashMap<SwgMessageController<Client>>();
+    private final TIntObjectMap<SwgMessageController<Connection>> controllers = new TIntObjectHashMap<SwgMessageController<Connection>>();
 
     private VelocityEngine ve = null;
 
@@ -43,47 +43,44 @@ public class SwgDevelopMessageRouter<Client extends SoeUdpClient> implements Swg
 
     private final ServerType serverEnv;
 
-    private final Injector injector;
-
     @Inject
     public SwgDevelopMessageRouter(Injector injector, @Assisted ServerType serverEnv) {
-        this.injector = injector;
         this.serverEnv = serverEnv;
 
-        loadControllers();
+        loadControllers(injector);
     }
 
     @Override
-    public void routeMessage(int opcode, Client client, SoeByteBuf message) {
+    public void routeMessage(byte priority, int opcode, Connection connection, ByteBuffer buffer) {
 
-        SwgMessageController<Client> controller = controllers.get(opcode);
+        SwgMessageController<Connection> controller = controllers.get(opcode);
 
         if (controller == null) {
 
-            handleMissingController(opcode, message);
+            handleMissingController(opcode, buffer);
 
         } else {
 
             try {
                 logger.debug("Routing to " + controller.getClass().getSimpleName());
-                controller.handleIncoming(client, message);
+                controller.handleIncoming(connection, buffer);
             } catch (Exception e) {
                 logger.error("SWG Message Handling", e);
             }
         }
     }
 
-    private void handleMissingController(int opcode, ByteBuf message) {
+    private void handleMissingController(int opcode, ByteBuffer buffer) {
 
-        writeTemplates(opcode, message);
+        writeTemplates(opcode, buffer);
 
         String propertyName = Integer.toHexString(opcode);
 
         logger.error("Unhandled SWG Message: '" + ClientString.get(propertyName) + "' 0x" + propertyName);
-        logger.error(SoeMessageUtil.bytesToHex(message));
+        logger.error(SoeMessageUtil.bytesToHex(buffer));
     }
 
-    private void loadControllers() {
+    private void loadControllers(final Injector injector) {
 
         ControllerScan scanAnnotiation = getClass().getAnnotation(ControllerScan.class);
 
@@ -118,14 +115,14 @@ public class SwgDevelopMessageRouter<Client extends SoeUdpClient> implements Swg
                     existingControllers.add(controllerClass.getSimpleName());
                 }
 
-                SwgController controllerAnnotiation = controllerClass.getAnnotation(SwgController.class);
+                SwgController controllerAnnotation = controllerClass.getAnnotation(SwgController.class);
 
-                if (controllerAnnotiation == null) {
+                if (controllerAnnotation == null) {
                     logger.info("Missing @SwgController annotation, discarding: " + controllerClass.getName());
                     continue;
                 }
 
-                Class<?> handledMessageClass = controllerAnnotiation.handles();
+                Class<?> handledMessageClass = controllerAnnotation.handles();
 
                 if (handledMessageClass != null) {
                     synchronized (existingControllerMap) {
@@ -136,7 +133,7 @@ public class SwgDevelopMessageRouter<Client extends SoeUdpClient> implements Swg
 
                 boolean match = false;
 
-                for (ServerType server : controllerAnnotiation.server()) {
+                for (ServerType server : controllerAnnotation.server()) {
                     if (server == serverEnv) {
                         match = true;
                     }
@@ -146,7 +143,7 @@ public class SwgDevelopMessageRouter<Client extends SoeUdpClient> implements Swg
                     continue;
                 }
 
-                SwgMessageController<Client> controller = injector.getInstance(controllerClass);
+                SwgMessageController<Connection> controller = injector.getInstance(controllerClass);
 
                 int hash = SOECRC32.hashCode(handledMessageClass.getSimpleName());
 
@@ -163,7 +160,7 @@ public class SwgDevelopMessageRouter<Client extends SoeUdpClient> implements Swg
         }
     }
 
-    private void writeTemplates(int opcode, ByteBuf buffer) {
+    private void writeTemplates(int opcode, ByteBuffer buffer) {
 
         initializeTemplating();
 
@@ -234,7 +231,7 @@ public class SwgDevelopMessageRouter<Client extends SoeUdpClient> implements Swg
         writer.close();
     }
 
-    private void writeMessage(String messageName, ByteBuf buffer) throws Exception {
+    private void writeMessage(String messageName, ByteBuffer buffer) throws Exception {
 
         Template t = ve.getTemplate("swg/src/main/resources/templates/swgmessage.vm");
 
@@ -279,4 +276,5 @@ public class SwgDevelopMessageRouter<Client extends SoeUdpClient> implements Swg
             }
         }
     }
+
 }

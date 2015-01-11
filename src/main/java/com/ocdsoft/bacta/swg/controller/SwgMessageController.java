@@ -1,9 +1,10 @@
 package com.ocdsoft.bacta.swg.controller;
 
-import com.ocdsoft.bacta.swg.network.soe.buffer.SoeByteBuf;
-import com.ocdsoft.bacta.swg.network.soe.client.SoeUdpClient;
-import com.ocdsoft.network.controller.MessageController;
+import com.ocdsoft.bacta.engine.network.controller.MessageController;
+import com.ocdsoft.bacta.soe.connection.SoeUdpConnection;
 
-public interface SwgMessageController<Client extends SoeUdpClient> extends MessageController<Client, SoeByteBuf> {
+import java.nio.ByteBuffer;
+
+public interface SwgMessageController<Client extends SoeUdpConnection> extends MessageController<Client, ByteBuffer> {
 
 }

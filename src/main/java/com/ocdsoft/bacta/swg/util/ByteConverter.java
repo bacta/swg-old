@@ -1,7 +1,6 @@
 package com.ocdsoft.bacta.swg.util;
 
-
-import com.ocdsoft.bacta.swg.network.swg.lang.UnsupportedTypeException;
+import com.ocdsoft.bacta.swg.lang.UnsupportedTypeException;
 
 import java.util.HashMap;
 import java.util.Map;
