@@ -1,6 +1,5 @@
 package com.ocdsoft.bacta.swg.shared.container;
 
-import com.ocdsoft.bacta.swg.server.game.object.SceneObject;
 import gnu.trove.list.TIntList;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -11,10 +10,10 @@ import java.util.Iterator;
 /**
  * Created by crush on 8/26/2014.
  */
-public class SlottedContainer extends Container {
-    private final TIntObjectMap<SceneObject> slotMap;
+public class SlottedContainer<T> extends Container<T> {
+    private final TIntObjectMap<T> slotMap;
 
-    public SlottedContainer(SceneObject owner, TIntList validSlots) {
+    public SlottedContainer(T owner, TIntList validSlots) {
         super(owner);
 
         slotMap = new TIntObjectHashMap<>(validSlots.size());
@@ -29,7 +28,7 @@ public class SlottedContainer extends Container {
     }
 
     @Override
-    public Iterator<SceneObject> iterator() {
+    public Iterator<T> iterator() {
         return Collections.unmodifiableCollection(slotMap.valueCollection()).iterator();
     }
 
@@ -52,7 +51,7 @@ public class SlottedContainer extends Container {
         return slotMap.containsKey(slotId);
     }
 
-    public SceneObject getObjectInSlot(int slotId) {
+    public T getObjectInSlot(int slotId) {
         return slotMap.get(slotId);
     }
 
@@ -63,9 +62,9 @@ public class SlottedContainer extends Container {
      * @param item The item for which to search.
      * @return
      */
-    public int findFirstSlotIdForObject(SceneObject item) {
+    public int findFirstSlotIdForObject(T item) {
         for (int slotId : slotMap.keys()) {
-            SceneObject object = slotMap.get(slotId);
+            T object = slotMap.get(slotId);
 
             if (object == item)
                 return slotId;
@@ -83,7 +82,7 @@ public class SlottedContainer extends Container {
      * @param item   The item which is being added to the container.
      * @return Returns false if the slotId is not a slot on this container. Otherwise, true.
      */
-    public boolean add(int slotId, SceneObject item) {
+    public boolean add(int slotId, T item) {
         if (!slotMap.containsKey(slotId))
             return false;
 
@@ -93,9 +92,9 @@ public class SlottedContainer extends Container {
     }
 
     @Override
-    public void remove(SceneObject item) {
+    public void remove(T item) {
         for (int slotId : slotMap.keys()) {
-            SceneObject obj = slotMap.get(slotId);
+            T obj = slotMap.get(slotId);
 
             if (obj == item)
                 slotMap.remove(slotId);
@@ -103,7 +102,7 @@ public class SlottedContainer extends Container {
     }
 
     @Override
-    public boolean contains(SceneObject item) {
+    public boolean contains(T item) {
         return slotMap.containsValue(item);
     }
 }

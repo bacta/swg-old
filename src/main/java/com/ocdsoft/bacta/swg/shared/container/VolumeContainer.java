@@ -1,6 +1,5 @@
 package com.ocdsoft.bacta.swg.shared.container;
 
-import com.ocdsoft.bacta.swg.server.game.object.SceneObject;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -11,19 +10,19 @@ import java.util.List;
 /**
  * Created by crush on 8/26/2014.
  */
-public class VolumeContainer extends Container {
-    private final List<SceneObject> contents;
+public class VolumeContainer<T> extends Container<T> {
+    private final List<T> contents;
     @Getter
     private int totalVolume;
 
-    public VolumeContainer(SceneObject owner, int totalVolume) {
+    public VolumeContainer(T owner, int totalVolume) {
         super(owner);
 
         this.contents = new ArrayList<>(totalVolume);
         this.totalVolume = totalVolume;
     }
 
-    public final void add(SceneObject item) {
+    public final void add(T item) {
         contents.add(item);
     }
 
@@ -31,17 +30,17 @@ public class VolumeContainer extends Container {
     public final boolean isVolumeContainer() { return true; }
 
     @Override
-    public Iterator<SceneObject> iterator() {
+    public Iterator<T> iterator() {
         return Collections.unmodifiableList(contents).iterator();
     }
 
     @Override
-    public boolean contains(SceneObject item) {
+    public boolean contains(T item) {
         return contents.contains(item);
     }
 
     @Override
-    public void remove(SceneObject item) {
+    public void remove(T item) {
         contents.remove(item);
     }
 
