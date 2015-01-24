@@ -63,8 +63,7 @@ public final class SwgDevelopMessageRouter<Connection extends SoeUdpConnection> 
         Constructor<? extends GameNetworkMessage> constructor = controllerData.getConstructor();
         try {
 
-            GameNetworkMessage message = constructor.newInstance();
-            message.deserialize(buffer);
+            GameNetworkMessage message = constructor.newInstance(buffer);
 
             if (controller != null) {
 
@@ -164,7 +163,7 @@ public final class SwgDevelopMessageRouter<Connection extends SoeUdpConnection> 
 
                 SwgMessageController controller = injector.getInstance(controllerClass);
                 int hash = SOECRC32.hashCode(handledMessageClass.getSimpleName());
-                Constructor constructor = handledMessageClass.getConstructor();
+                Constructor constructor = handledMessageClass.getConstructor(ByteBuffer.class);
 
                 ControllerData newControllerData = new ControllerData(controller, constructor);
 
