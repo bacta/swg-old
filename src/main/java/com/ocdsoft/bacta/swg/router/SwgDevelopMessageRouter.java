@@ -6,6 +6,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.ocdsoft.bacta.engine.network.ControllerScan;
 import com.ocdsoft.bacta.soe.ServerType;
 import com.ocdsoft.bacta.soe.connection.SoeUdpConnection;
+import com.ocdsoft.bacta.soe.message.GameNetworkMessage;
 import com.ocdsoft.bacta.soe.message.ReliableNetworkMessage;
 import com.ocdsoft.bacta.soe.router.SwgMessageRouter;
 import com.ocdsoft.bacta.soe.util.ClientString;
@@ -15,6 +16,7 @@ import com.ocdsoft.bacta.swg.SwgController;
 import com.ocdsoft.bacta.swg.controller.SwgMessageController;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import lombok.Getter;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -26,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.lang.reflect.Constructor;
 import java.nio.ByteBuffer;
 import java.util.*;
 
@@ -33,19 +36,21 @@ import java.util.*;
 public final class SwgDevelopMessageRouter<Connection extends SoeUdpConnection> implements SwgMessageRouter<Connection> {
     private static final Logger logger = LoggerFactory.getLogger(SwgDevelopMessageRouter.class);
 
-    private final TIntObjectMap<SwgMessageController<Connection>> controllers = new TIntObjectHashMap<SwgMessageController<Connection>>();
+    private final TIntObjectMap<ControllerData> controllers = new TIntObjectHashMap<>();
 
     private VelocityEngine ve = null;
 
-    private final Map<String, String> existingControllerMap = new HashMap<String, String>();
-    private final List<String> existingControllers = new ArrayList<String>();
-    private final List<Class<? extends ReliableNetworkMessage>> existingMessages = new ArrayList<Class<? extends ReliableNetworkMessage>>();
+    private final Map<String, String> existingControllerMap = new HashMap<>();
+    private final List<String> existingControllers = new ArrayList<>();
+    private final List<Class<? extends ReliableNetworkMessage>> existingMessages = new ArrayList<>();
 
     private final ServerType serverEnv;
+    private final boolean developmentMode;
 
     @Inject
-    public SwgDevelopMessageRouter(Injector injector, @Assisted ServerType serverEnv) {
+    public SwgDevelopMessageRouter(Injector injector, @Assisted ServerType serverEnv, @Assisted boolean developmentMode) {
         this.serverEnv = serverEnv;
+        this.developmentMode = developmentMode;
 
         loadControllers(injector);
     }
@@ -53,26 +58,39 @@ public final class SwgDevelopMessageRouter<Connection extends SoeUdpConnection> 
     @Override
     public void routeMessage(byte priority, int opcode, Connection connection, ByteBuffer buffer) {
 
-        SwgMessageController<Connection> controller = controllers.get(opcode);
+        ControllerData controllerData = controllers.get(opcode);
+        SwgMessageController controller = controllerData.getSwgMessageController();
+        Constructor<? extends GameNetworkMessage> constructor = controllerData.getConstructor();
+        try {
 
-        if (controller == null) {
+            GameNetworkMessage message = constructor.newInstance();
+            message.deserialize(buffer);
 
-            handleMissingController(opcode, buffer);
+            if (controller != null) {
 
-        } else {
+                try {
 
-            try {
-                logger.debug("Routing to " + controller.getClass().getSimpleName());
-                controller.handleIncoming(connection, buffer);
-            } catch (Exception e) {
-                logger.error("SWG Message Handling", e);
+                    logger.debug("Routing to " + controller.getClass().getSimpleName());
+
+                    controller.handleIncoming(connection, message);
+
+                } catch (Exception e) {
+                    logger.error("SWG Message Handling", e);
+                }
+            } else {
+                handleMissingController(opcode, buffer);
             }
+
+        } catch (Exception e) {
+            logger.error("Unable to create incoming message", e);
         }
     }
 
     private void handleMissingController(int opcode, ByteBuffer buffer) {
 
-        writeTemplates(opcode, buffer);
+        if(developmentMode) {
+            writeTemplates(opcode, buffer);
+        }
 
         String propertyName = Integer.toHexString(opcode);
 
@@ -82,14 +100,14 @@ public final class SwgDevelopMessageRouter<Connection extends SoeUdpConnection> 
 
     private void loadControllers(final Injector injector) {
 
-        ControllerScan scanAnnotiation = getClass().getAnnotation(ControllerScan.class);
+        ControllerScan scanAnnotation = getClass().getAnnotation(ControllerScan.class);
 
-        if (scanAnnotiation == null) {
+        if (scanAnnotation == null) {
             logger.error("Missing @ControllerScan annotation, unable to load controllers");
             return;
         }
 
-        Reflections reflections = new Reflections(scanAnnotiation.target());
+        Reflections reflections = new Reflections(scanAnnotation.target());
 
         Set<Class<? extends ReliableNetworkMessage>> swgMessages = reflections.getSubTypesOf(ReliableNetworkMessage.class);
 
@@ -143,15 +161,18 @@ public final class SwgDevelopMessageRouter<Connection extends SoeUdpConnection> 
                     continue;
                 }
 
-                SwgMessageController<Connection> controller = injector.getInstance(controllerClass);
 
+                SwgMessageController controller = injector.getInstance(controllerClass);
                 int hash = SOECRC32.hashCode(handledMessageClass.getSimpleName());
+                Constructor constructor = handledMessageClass.getConstructor();
+
+                ControllerData newControllerData = new ControllerData(controller, constructor);
 
                 if (!controllers.containsKey(hash)) {
 //					logger.debug("Adding SWG controller for: " + handledMessageClass.getSimpleName());
 
                     synchronized (controllers) {
-                        controllers.put(hash, controller);
+                        controllers.put(hash, newControllerData);
                     }
                 }
             } catch (Exception e) {
@@ -274,6 +295,21 @@ public final class SwgDevelopMessageRouter<Connection extends SoeUdpConnection> 
                 ve.setProperty(RuntimeConstants.FILE_RESOURCE_LOADER_CACHE, "true");
                 ve.init();
             }
+        }
+    }
+
+    private class ControllerData {
+        @Getter
+        final private SwgMessageController swgMessageController;
+
+        @Getter
+        final private Constructor constructor;
+
+        public ControllerData(final SwgMessageController swgMessageController,
+                          final Constructor constructor) {
+            this.swgMessageController = swgMessageController;
+            this.constructor = constructor;
+
         }
     }
 
