@@ -1,6 +1,6 @@
 package com.ocdsoft.bacta.swg.util;
 
-import com.ocdsoft.bacta.engine.buffer.ByteBufferSerializable;
+import com.ocdsoft.bacta.engine.buffer.ByteBufferWritable;
 import com.ocdsoft.bacta.engine.lang.UnicodeString;
 import com.ocdsoft.bacta.engine.utils.BufferUtil;
 import com.ocdsoft.bacta.swg.lang.UnsupportedTypeException;
@@ -15,9 +15,9 @@ public class ByteAppender {
     }
 
     private static final Map<Class<?>, TypeAppender<?>> appenders = new HashMap<Class<?>, TypeAppender<?>>();
-    private static final TypeAppender<ByteBufferSerializable> messageWritableAppender = new TypeAppender<ByteBufferSerializable>() {
+    private static final TypeAppender<ByteBufferWritable> messageWritableAppender = new TypeAppender<ByteBufferWritable>() {
         @Override
-        public void append(ByteBufferSerializable value, ByteBuffer buffer) {
+        public void append(ByteBufferWritable value, ByteBuffer buffer) {
             ByteBuffer message = ByteBuffer.allocate(496); {
             }; //TODO remove this dirty hack.
 
@@ -87,8 +87,8 @@ public class ByteAppender {
 
     @SuppressWarnings("unchecked")
     public static <T> void append(T value, ByteBuffer buffer) throws UnsupportedTypeException {
-        if (value instanceof ByteBufferSerializable) {
-            messageWritableAppender.append((ByteBufferSerializable) value, buffer);
+        if (value instanceof ByteBufferWritable) {
+            messageWritableAppender.append((ByteBufferWritable) value, buffer);
             return;
         }
 

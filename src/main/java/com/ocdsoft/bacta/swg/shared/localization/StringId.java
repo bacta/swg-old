@@ -1,6 +1,6 @@
 package com.ocdsoft.bacta.swg.shared.localization;
 
-import com.ocdsoft.bacta.engine.buffer.ByteBufferSerializable;
+import com.ocdsoft.bacta.engine.buffer.ByteBufferWritable;
 import com.ocdsoft.bacta.engine.utils.BufferUtil;
 import lombok.Getter;
 
@@ -37,7 +37,7 @@ import java.nio.ByteBuffer;
  * </pre>
  * </p>
  */
-public final class StringId implements ByteBufferSerializable {
+public final class StringId implements ByteBufferWritable {
     public static final StringId empty = new StringId();
     public static final StringId defaultStringId = new StringId("string_id_table", 0);
 
