@@ -8,8 +8,6 @@ import com.ocdsoft.bacta.soe.io.udp.game.GameServerState;
 import com.ocdsoft.bacta.soe.message.ReliableNetworkMessage;
 import com.ocdsoft.bacta.soe.util.ClientString;
 import com.ocdsoft.bacta.soe.util.SoeMessageUtil;
-import com.ocdsoft.bacta.swg.controller.SwgMessageController;
-import lombok.Getter;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -20,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.lang.reflect.Constructor;
 import java.nio.ByteBuffer;
 
 @ControllerScan(target = "com.ocdsoft.bacta.swg.controller")
@@ -157,20 +154,4 @@ public final class SwgDevelopMessageRouter<Connection extends SoeUdpConnection> 
             }
         }
     }
-
-    private class ControllerData {
-        @Getter
-        final private SwgMessageController swgMessageController;
-
-        @Getter
-        final private Constructor constructor;
-
-        public ControllerData(final SwgMessageController swgMessageController,
-                          final Constructor constructor) {
-            this.swgMessageController = swgMessageController;
-            this.constructor = constructor;
-
-        }
-    }
-
 }
