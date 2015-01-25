@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.nio.ByteBuffer;
 
-@ControllerScan(target = "com.ocdsoft.bacta.swg.controller")
+@ControllerScan(target = "com.ocdsoft.bacta.swg.cu.controller")
 public final class SwgDevelopMessageRouter<Connection extends SoeUdpConnection> extends SwgProductionMessageRouter<Connection> {
     private static final Logger logger = LoggerFactory.getLogger(SwgDevelopMessageRouter.class);
     private VelocityEngine ve = null;

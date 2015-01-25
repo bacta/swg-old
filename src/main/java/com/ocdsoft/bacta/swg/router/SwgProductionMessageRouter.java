@@ -25,7 +25,7 @@ import java.lang.reflect.Constructor;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-@ControllerScan(target = "com.ocdsoft.bacta.swg.controller")
+@ControllerScan(target = "com.ocdsoft.bacta.swg.cu.controller")
 public class SwgProductionMessageRouter<Connection extends SoeUdpConnection> implements SwgMessageRouter<Connection> {
     private static final Logger logger = LoggerFactory.getLogger(SwgProductionMessageRouter.class);
 
