@@ -3,9 +3,9 @@ package com.ocdsoft.bacta.swg.router;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.ocdsoft.bacta.engine.network.ControllerScan;
+import com.ocdsoft.bacta.soe.ServerState;
 import com.ocdsoft.bacta.soe.ServerType;
 import com.ocdsoft.bacta.soe.connection.SoeUdpConnection;
-import com.ocdsoft.bacta.soe.io.udp.game.GameServerState;
 import com.ocdsoft.bacta.soe.message.GameNetworkMessage;
 import com.ocdsoft.bacta.soe.message.ReliableNetworkMessage;
 import com.ocdsoft.bacta.soe.router.SwgMessageRouter;
@@ -38,7 +38,7 @@ public class SwgProductionMessageRouter<Connection extends SoeUdpConnection> imp
     protected final ServerType serverEnv;
 
     @Inject
-    public SwgProductionMessageRouter(Injector injector, GameServerState serverState) {
+    public SwgProductionMessageRouter(Injector injector, ServerState serverState) {
         this.serverEnv = serverState.getServerType();
 
         loadControllers(injector);
@@ -48,13 +48,13 @@ public class SwgProductionMessageRouter<Connection extends SoeUdpConnection> imp
     public void routeMessage(byte priority, int opcode, Connection connection, ByteBuffer buffer) {
 
         ControllerData controllerData = controllers.get(opcode);
-        SwgMessageController controller = controllerData.getSwgMessageController();
-        Constructor<? extends GameNetworkMessage> constructor = controllerData.getConstructor();
-        try {
+        if(controllerData != null) {
+            SwgMessageController controller = controllerData.getSwgMessageController();
+            Constructor<? extends GameNetworkMessage> constructor = controllerData.getConstructor();
+            try {
 
-            GameNetworkMessage message = constructor.newInstance(buffer);
+                GameNetworkMessage message = constructor.newInstance(buffer);
 
-            if (controller != null) {
 
                 try {
 
@@ -65,12 +65,13 @@ public class SwgProductionMessageRouter<Connection extends SoeUdpConnection> imp
                 } catch (Exception e) {
                     logger.error("SWG Message Handling", e);
                 }
-            } else {
-                handleMissingController(opcode, buffer);
-            }
 
-        } catch (Exception e) {
-            logger.error("Unable to create incoming message", e);
+
+            } catch (Exception e) {
+                logger.error("Unable to create incoming message", e);
+            }
+        } else {
+            handleMissingController(opcode, buffer);
         }
     }
 
@@ -128,7 +129,6 @@ public class SwgProductionMessageRouter<Connection extends SoeUdpConnection> imp
 
                 if (handledMessageClass != null) {
                     synchronized (existingControllerMap) {
-                        logger.trace("Adding Controller for " + serverEnv + ": " + controllerClass.getName());
                         existingControllerMap.put(handledMessageClass.getSimpleName(), controllerClass.getSimpleName());
                     }
                 }
@@ -153,7 +153,8 @@ public class SwgProductionMessageRouter<Connection extends SoeUdpConnection> imp
                 ControllerData newControllerData = new ControllerData(controller, constructor);
 
                 if (!controllers.containsKey(hash)) {
-//					logger.debug("Adding SWG controller for: " + handledMessageClass.getSimpleName());
+                    String propertyName = Integer.toHexString(hash);
+                    logger.debug("Adding Controller for " + serverEnv + ": " + controllerClass.getName() + " " + ClientString.get(propertyName) + "' 0x" + propertyName);
 
                     synchronized (controllers) {
                         controllers.put(hash, newControllerData);
