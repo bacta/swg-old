@@ -8,17 +8,17 @@
   <packaging>jar</packaging>
 
     <name>swg</name>
-    <url>https://github.com/com.ocdsoft.bacta/swg</url>
+    <url>https://github.com/bacta/swg</url>
 
     <issueManagement>
-        <url>https://github.com/com.ocdsoft.bacta/swg/issues</url>
+        <url>https://github.com/bacta/swg/issues</url>
         <system>GitHub Issues</system>
     </issueManagement>
 
     <scm>
         <url>https://github.com/com.ocdsoft.bacta/swg</url>
-        <connection>scm:git:git://github.com/com.ocdsoft.bacta/swg.git</connection>
-        <developerConnection>scm:git:git@github.com:com.ocdsoft.bacta/swg.git</developerConnection>
+        <connection>scm:git:git://github.com/bacta/swg.git</connection>
+        <developerConnection>scm:git:git@github.com:bacta/swg.git</developerConnection>
     </scm>
 
     <licenses>
@@ -76,6 +76,11 @@
           <artifactId>engine</artifactId>
           <version>1.0.0-SNAPSHOT</version>
           <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>com.ocdsoft.bacta</groupId>
+          <artifactId>tre</artifactId>
+          <version>1.0.0-SNAPSHOT</version>
       </dependency>
       <dependency>
           <groupId>org.apache.velocity</groupId>

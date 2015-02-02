@@ -18,7 +18,7 @@ public abstract class NameGenerator {
 
         random = new Random();
 
-        ResourceBundle nameBundle = ResourceBundle.getBundle("conf.name.lettermappings");
+        ResourceBundle nameBundle = ResourceBundle.getBundle("name.lettermappings");
         letterMapping = new HashMap<>();
         letterMapping.put(" ", "abcdefghijklmnopqrstuvwxyz");
         letterRules = new HashMap<>();

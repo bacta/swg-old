@@ -7,7 +7,7 @@ import com.ocdsoft.bacta.swg.shared.object.crc.ConstCharCrcString;
 import com.ocdsoft.bacta.swg.shared.object.crc.CrcStringTable;
 import com.ocdsoft.bacta.swg.shared.object.template.param.TemplateBase;
 import com.ocdsoft.bacta.swg.shared.object.template.param.TemplateBaseIffLoader;
-import com.ocdsoft.bacta.swg.shared.tre.TreeFile;
+import com.ocdsoft.bacta.tre.TreeFile;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.slf4j.Logger;

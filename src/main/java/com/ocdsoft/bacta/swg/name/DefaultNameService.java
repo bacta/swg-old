@@ -10,7 +10,7 @@ import com.ocdsoft.bacta.swg.shared.iff.chunk.ChunkReader;
 import com.ocdsoft.bacta.swg.shared.iff.datatable.DataTable;
 import com.ocdsoft.bacta.swg.shared.iff.datatable.DataTableIffReader;
 import com.ocdsoft.bacta.swg.shared.iff.datatable.DataTableRow;
-import com.ocdsoft.bacta.swg.shared.tre.TreeFile;
+import com.ocdsoft.bacta.tre.TreeFile;
 import org.apache.commons.codec.language.ColognePhonetic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,11 +45,11 @@ public final class DefaultNameService implements NameService {
 
         phonetic = new ColognePhonetic();
 
-        fictionalNames =  loadList(this.getClass().getResourceAsStream("/conf/name/fictionalreserved.lst"));
-        developersNames =  loadList(this.getClass().getResourceAsStream("/conf/name/developers.lst"));
+        fictionalNames =  loadList(this.getClass().getResourceAsStream("/name/fictionalreserved.lst"));
+        developersNames =  loadList(this.getClass().getResourceAsStream("/name/developers.lst"));
         profaneWords = new ArrayList<>();
 
-        ResourceBundle bundle = ResourceBundle.getBundle("conf.name.profane");
+        ResourceBundle bundle = ResourceBundle.getBundle("name.profane");
         for(String word : bundle.keySet()) {
             boolean substringMatch = bundle.getString(word).equalsIgnoreCase("1");
             ProfaneWord newWord = new ProfaneWord(word.toLowerCase(), substringMatch);

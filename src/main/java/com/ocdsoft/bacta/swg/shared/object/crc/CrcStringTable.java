@@ -3,7 +3,7 @@ package com.ocdsoft.bacta.swg.shared.object.crc;
 import com.ocdsoft.bacta.soe.util.SOECRC32;
 import com.ocdsoft.bacta.swg.shared.iff.chunk.ChunkBuffer;
 import com.ocdsoft.bacta.swg.shared.iff.chunk.ChunkReader;
-import com.ocdsoft.bacta.swg.shared.tre.TreeFile;
+import com.ocdsoft.bacta.tre.TreeFile;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import org.slf4j.Logger;
