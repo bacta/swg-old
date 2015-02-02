@@ -38,7 +38,7 @@ public final class SharedFileService {
 
         final long start = System.nanoTime();
 
-        Reflections reflections = new Reflections();
+        Reflections reflections = new Reflections("com.ocdsoft.bacta");
 
         Set<Class<? extends SharedFileLoader>> loaders = reflections.getSubTypesOf(SharedFileLoader.class);
 

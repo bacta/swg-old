@@ -1,6 +1,5 @@
 package com.ocdsoft.bacta.swg.shared.object.template;
 
-import com.google.common.base.Function;
 import com.ocdsoft.bacta.soe.util.SOECRC32;
 import com.ocdsoft.bacta.swg.shared.iff.chunk.ChunkReader;
 import com.ocdsoft.bacta.swg.shared.object.crc.ConstCharCrcString;
@@ -15,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Created by crush on 8/19/2014.
