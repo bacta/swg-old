@@ -47,14 +47,14 @@ public class ObjMessageTemplateWriter {
         ve.setProperty(RuntimeConstants.FILE_RESOURCE_LOADER_CACHE, "true");
         ve.init();
 
-        controllerClassPath = System.getProperty("template.classpath") + ".controller." + serverEnv.name().toLowerCase() + ".object";
+        controllerClassPath = System.getProperty("base.classpath") + ".controller." + serverEnv.name().toLowerCase() + ".object";
         controllerFilePath = System.getProperty("template.filepath") + "/src/main/java/" +
-                System.getProperty("template.classpath").replace(".", "/") +
+                System.getProperty("base.classpath").replace(".", "/") +
                 "/controller/" + serverEnv.name().toLowerCase() + "/object/";
         
-        messageClassPath = System.getProperty("template.classpath") + ".message." + serverEnv.name().toLowerCase() + ".object";
+        messageClassPath = System.getProperty("base.classpath") + ".message." + serverEnv.name().toLowerCase() + ".object";
         messageFilePath = System.getProperty("template.filepath") + "/src/main/java/" +
-                System.getProperty("template.classpath").replace(".", "/") +
+                System.getProperty("base.classpath").replace(".", "/") +
                 "/message/" + serverEnv.name().toLowerCase() + "/object/";
 
         controllerFile = System.getProperty("template.filepath") + "/src/main/resources/ObjectControllers.lst";
