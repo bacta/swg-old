@@ -5,11 +5,6 @@ import com.google.inject.Singleton;
 import com.ocdsoft.bacta.swg.name.generator.CreatureNameGenerator;
 import com.ocdsoft.bacta.swg.name.generator.NameGenerator;
 import com.ocdsoft.bacta.swg.name.generator.PlayerNameGenerator;
-import com.ocdsoft.bacta.swg.shared.iff.IffReader;
-import com.ocdsoft.bacta.swg.shared.iff.chunk.ChunkReader;
-import com.ocdsoft.bacta.swg.shared.iff.datatable.DataTable;
-import com.ocdsoft.bacta.swg.shared.iff.datatable.DataTableIffReader;
-import com.ocdsoft.bacta.swg.shared.iff.datatable.DataTableRow;
 import com.ocdsoft.bacta.tre.TreeFile;
 import org.apache.commons.codec.language.ColognePhonetic;
 import org.slf4j.Logger;
@@ -55,16 +50,16 @@ public final class DefaultNameService implements NameService {
             ProfaneWord newWord = new ProfaneWord(word.toLowerCase(), substringMatch);
             profaneWords.add(newWord);
         }
-
-        final IffReader<DataTable> dataTableReader = new DataTableIffReader();
-        final DataTable dataTable = dataTableReader.read(new ChunkReader("datatables/chat/profanity_filter.iff", treeFile.open("datatables/chat/profanity_filter.iff")));
-
-        for (DataTableRow row : dataTable.getRows()) {
-            String word = row.get(0).getString();
-            boolean substringMatch = row.get(1).getInt() == 1;
-            ProfaneWord newWord = new ProfaneWord(word.toLowerCase(), substringMatch);
-            profaneWords.add(newWord);
-        }
+//
+//        final IffReader<DataTable> dataTableReader = new DataTableIffReader();
+//        final DataTable dataTable = dataTableReader.read(new ChunkReader("datatables/chat/profanity_filter.iff", treeFile.open("datatables/chat/profanity_filter.iff")));
+//
+//        for (DataTableRow row : dataTable.getRows()) {
+//            String word = row.get(0).getString();
+//            boolean substringMatch = row.get(1).getInt() == 1;
+//            ProfaneWord newWord = new ProfaneWord(word.toLowerCase(), substringMatch);
+//            profaneWords.add(newWord);
+//        }
     }
 
     private Set<String> loadList(InputStream inputStream) {

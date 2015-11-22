@@ -1,27 +1,18 @@
 package com.ocdsoft.bacta.swg.datatable;
 
 import bacta.iff.Iff;
-import com.sun.javaws.exceptions.InvalidArgumentException;
-import gnu.trove.TCollections;
-import gnu.trove.TFloatCollection;
-import gnu.trove.TIntCollection;
-import gnu.trove.list.array.TFloatArrayList;
-import gnu.trove.list.array.TIntArrayList;
+import com.google.common.base.Preconditions;
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * Created by crush on 2/8/15.
  */
 public final class DataTable {
-    private static final Logger logger = LoggerFactory.getLogger(DataTable.class);
-
     private static final int ID_DTII = Iff.createChunkId("DTII");
     private static final int ID_0000 = Iff.createChunkId("0000");
     private static final int ID_0001 = Iff.createChunkId("0001");
@@ -29,443 +20,496 @@ public final class DataTable {
     private static final int ID_ROWS = Iff.createChunkId("ROWS");
     private static final int ID_TYPE = Iff.createChunkId("TYPE");
 
-    @Getter private String name;
-    @Getter private int numCols;
-    @Getter private int numRows;
-
+    private List<DataTableColumnType> types;
     private List<DataTableCell> cells;
     private List<String> columns;
-    private List<DataTableColumnType> types;
+    private TObjectIntMap<String> columnIndexMap;
+    @Getter
+    private String name;
 
-    public DataTable(final String name, final Iff iff) {
-        this.name = name;
+    public DataTable() {
+    }
 
-        iff.openForm(ID_DTII);
+    /**
+     * Determines if a given column exists.
+     *
+     * @param column The name of the column.
+     * @return True if the column exists. Otherwise, false.
+     */
+    public boolean doesColumnExist(final String column) {
+        Preconditions.checkArgument(!this.columnIndexMap.isEmpty(), "DataTable[%s]: Column index map is empty.", this.name);
 
-        Iff.FormContext currentForm = iff.nextForm();
+        return this.columnIndexMap.containsKey(column);
+    }
 
-        final int version = currentForm.getName();
+    /**
+     * Gets the name of the column at the given index.
+     *
+     * @param column The index of the column name which to receive.
+     * @return Returns the name of the column.
+     * @throws ArrayIndexOutOfBoundsException If the column index is outside the bounds of the columns list.
+     */
+    public String getColumnName(int column) {
+        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable[%s]: Invalid col number [%s]. Cols=[%s]", this.name, column, getNumColumns());
 
-        if (version == ID_0000) {
-            load0000(iff);
-        } else if (version == ID_0001) {
-            load0001(iff);
-        } else {
-            throw new UnsupportedOperationException(
-                    String.format("Unknown DataTable version [%s].", Iff.getChunkName(version)));
+        return this.columns.get(column);
+    }
+
+    /**
+     * Searches for the index of a column by name.
+     *
+     * @param column The name of the column.
+     * @return The index of the column.
+     * @throws NullPointerException If the specified column does not exist.
+     */
+    public int findColumnNumber(final String column) {
+        Preconditions.checkArgument(!this.columnIndexMap.isEmpty(), "DataTable[%s]: Column index map is empty.", this.name);
+
+        return this.columnIndexMap.get(column);
+    }
+
+    /**
+     * Creates a new DataTableColumnType instance based on the type described.
+     * @param type The type description for the new DataTableColumnType.
+     * @param dataTableManager DataTableManager instance required for columns of type 'z' which must lookup additional
+     *                         DataTables to serve as enums.
+     * @return New instance of a DataTableColumnType based on the passed in type.
+     */
+    public static DataTableColumnType getDataType(final String type, final DataTableManager dataTableManager) {
+        return new DataTableColumnType(type, dataTableManager);
+    }
+
+    /**
+     * Gets the DataTableColumnType for the specified column.
+     *
+     * @param column The name of the column.
+     * @return The DataTableColumnType for the specified column.
+     * @throws NullPointerException If the specified column does not exist.
+     */
+    public DataTableColumnType getDataTypeForColumn(final String column) {
+        final int columnIndex = findColumnNumber(column);
+        Preconditions.checkArgument(columnIndex >= 0 && columnIndex < getNumColumns(), "DataTable[%s]: Column name [%s] is invalid.", this.name, column);
+
+        return getDataTypeForColumn(columnIndex);
+    }
+
+    /**
+     * Gets the DataTableColumnType for the specified column.
+     *
+     * @param column The index of the column.
+     * @return The DataTableColumnType for the specified column.
+     * @throws ArrayIndexOutOfBoundsException If the column index is outside the bounds of the types list.
+     *                                        IllegalArgumentException If the column index is out of bounds.
+     */
+    public DataTableColumnType getDataTypeForColumn(int column) {
+        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable[%s]: Invalid col number [%s]. Cols=[%s]", this.name, column, getNumColumns());
+
+        return this.types.get(column);
+    }
+
+    public int getIntValue(final String column, int row) {
+        final int columnIndex = findColumnNumber(column);
+        Preconditions.checkArgument(columnIndex >= 0 && columnIndex < getNumColumns(), "DataTable[%s]: Column name [%s] is invalid.", this.name, column);
+
+        return getIntValue(columnIndex, row);
+    }
+
+    public int getIntValue(int column, int row) {
+        Preconditions.checkArgument(row >= 0 && row < getNumRows(), "DataTable[%s]: Invalid row number [%s]. Rows=[%s]", this.name, row, getNumRows());
+        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable[%s]: Invalid col number [%s]. Cols=[%s]", this.name, row, getNumColumns());
+
+        final DataTableColumnType.DataType basicType = types.get(column).getBasicType();
+
+        if (basicType == DataTableColumnType.DataType.Int) {
+            final DataTableCell cell = getDataTableCell(column, row);
+
+            Preconditions.checkArgument(cell.getType() == DataTableCell.CellType.Int, "Could not convert row %s column %s to int value.", row, column);
+
+            return cell.getIntValue();
+
+        } else if (basicType == DataTableColumnType.DataType.String) {
+            final DataTableCell cell = getDataTableCell(column, row);
+
+            Preconditions.checkArgument(cell.getType() == DataTableCell.CellType.String, "Could not convert row %s column %s to string value.", row, column);
+
+            return cell.getStringValueCrc();
         }
 
-        iff.closeChunk(); //version
-        iff.closeChunk(); //ID_DTII
+        Preconditions.checkArgument(true, "DataTable[%s]: Wrong data type [%s] for col [%s].", this.name, basicType, column);
 
-        //buildColumnIndexMap();
+        return 0;
+    }
+
+    public int getIntDefaultForColumn(final String column) {
+        final int columnIndex = findColumnNumber(column);
+        Preconditions.checkArgument(columnIndex >= 0 && columnIndex < getNumColumns(), "DataTable[%s}: Invalid col number [%s]. Cols=[%s]", this.name, columnIndex, getNumColumns());
+
+        return getIntDefaultForColumn(columnIndex);
     }
 
     /**
-     * Creates a new instance of DataTableColumnType based on the type specification string passed into the method.
-     * @param typeSpecString The type specification string consisting of the type, enum values, and default value.
-     * @return DataTableColumnType representing the type specification string.
+     * Gets the Integer default value for the given column.
+     *
+     * @param column The index of the column.
+     * @return The default value for the given column.
      */
-    private static final DataTableColumnType getDataType(final String typeSpecString) {
-        return new DataTableColumnType(typeSpecString);
+    public int getIntDefaultForColumn(int column) {
+        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable[%s]: Invalid col number [%s].  Cols=[%s]", this.name, column, getNumColumns());
+        Preconditions.checkArgument(types.get(column).getBasicType() == DataTableColumnType.DataType.Int, "Wrong data type for column %s.", column);
+
+        return Integer.parseInt(getDataTypeForColumn(column).mangleValue());
     }
 
-    /**
-     * Finds the index of the column in the DataTable by name.
-     * @param columnName The name of the column to find.
-     * @return The index of the column, or -1 if it was not found.
-     */
-    public final int findColumnNumber(final String columnName) {
-        for (int col = 0; col < this.numCols; col++) {
-            final String column = this.columns.get(col);
+    public float getFloatValue(final String column, int row) {
+        final int columnIndex = findColumnNumber(column);
+        Preconditions.checkArgument(columnIndex >= 0 && columnIndex < getNumColumns(), "DataTable Column [%s] is invalid.", column);
 
-            if (column.equals(columnName))
-                return col;
-        }
-
-        return -1;
+        return getFloatValue(columnIndex, row);
     }
 
-    /**
-     * Checks to see if a specific column name exists in the DataTable.
-     * @param columnName The name of the column to check.
-     * @return True if the column exists, otherwise false.
-     */
-    public final boolean doesColumnExist(final String columnName) {
-        return findColumnNumber(columnName) != -1;
-    }
+    public float getFloatValue(int column, int row) {
+        Preconditions.checkArgument(row >= 0 && row < getNumRows(), "DataTable[%s]: Invalid row number [%s]. Rows=[%s]", this.name, row, getNumRows());
+        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable[%s]: Invalid col number [%s]. Cols=[%s]", this.name, row, getNumColumns());
+        Preconditions.checkArgument(types.get(column).getBasicType() == DataTableColumnType.DataType.Float, "Wrong data type for column %s.", column);
 
-    /**
-     * Returns the name of a column at a given index.
-     * @param index The index of the column name.
-     * @return The name of the column at the given index.
-     */
-    public final String getColumnName(int index) {
-        return this.columns.get(index);
-    }
+        final DataTableCell cell = getDataTableCell(column, row);
 
-    /**
-     * Gets a DataTableCell from a given position within the DataTable.
-     * @param column The column index of the cell.
-     * @param row The row index of the cell.
-     * @return The DataTableCell for the given cell.
-     */
-    public final DataTableCell getDataTableCell(int column, int row) {
-        return this.cells.get(column * row);
-    }
-
-    /**
-     * Gets the type for a specified column by name.
-     * @param columnName The name of the column for which to retrieve the type.
-     * @return The type of the column.
-     */
-    public final DataTableColumnType getDataTypeForColumn(final String columnName) {
-        return getDataTypeForColumn(findColumnNumber(columnName));
-    }
-
-    /**
-     * Gets the type for a specified column by index.
-     * @param columnIndex The index of the column for which to retrieve the type.
-     * @return The type of the column.
-     */
-    public final DataTableColumnType getDataTypeForColumn(final int columnIndex) {
-        return this.types.get(columnIndex);
-    }
-
-    /**
-     * Gets all the values in the specified column as floats.
-     * @param columnName The name of the column from which to retrieve values.
-     * @return A collection of float values from the specified column for each row in the DataTable.
-     */
-    public final TFloatCollection getFloatColumn(final String columnName) {
-        return getFloatColumn(findColumnNumber(columnName));
-    }
-
-    /**
-     * Gets all the values in the specified column as floats.
-     * @param columnIndex The index of the column from which to retrieve values.
-     * @return A collection of float values from the specified column for each row in the DataTable.
-     */
-    public final TFloatCollection getFloatColumn(final int columnIndex) {
-        if (columnIndex < 0 || columnIndex >= this.columns.size())
-            throw new ArrayIndexOutOfBoundsException("Column could not be found.");
-
-        final TFloatCollection collection = new TFloatArrayList(this.numRows);
-
-        for (int row = 0; row < this.numRows; row++) {
-            final DataTableCell cell = this.cells.get(columnIndex + row * this.numCols);
-            collection.add(cell.getFloatValue());
-        }
-
-        return TCollections.unmodifiableCollection(collection);
-    }
-
-    /**
-     * Gets the float value of the cell in the column specified, at the row specified.
-     * @param columnName The name of the column from which to retrieve the value.
-     * @param row The row from which to retrieve the value.
-     * @return The float value in the cell specified by the column and row.
-     */
-    public final float getFloatValue(final String columnName, int row) {
-        return getFloatValue(findColumnNumber(columnName), row);
-    }
-
-    /**
-     * Gets the float value of the cell in the column specified, at the row specified.
-     * @param columnIndex The index of the column from which to retrieve the value.
-     * @param row The row from which to retrieve the value.
-     * @return The float value in the cell specified by the column and row.
-     */
-    public final float getFloatValue(final int columnIndex, int row) {
-        final DataTableCell cell = this.cells.get(columnIndex + row * this.numCols);
+        Preconditions.checkArgument(cell.getType() == DataTableCell.CellType.Float, "Could not convert row %s column %s to float value.", row, column);
 
         return cell.getFloatValue();
     }
 
-    /**
-     * Gets the default value of a float cell for the specified column.
-     * @param columnName The name of the column for which to retrieve the value.
-     * @return The default value of the float cell.
-     * @throws InvalidDataTypeValueException
-     */
-    public final float getFloatDefaultForColumn(final String columnName)
-            throws InvalidDataTypeValueException {
-        return getFloatDefaultForColumn(findColumnNumber(columnName));
+    public float getFloatDefaultForColumn(final String column) {
+        final int columnIndex = findColumnNumber(column);
+        Preconditions.checkArgument(columnIndex >= 0 && columnIndex < getNumColumns(), "DataTable Column [%s] is invalid.", column);
+
+        return getFloatDefaultForColumn(columnIndex);
     }
 
-    /**
-     * Gets the default value of a float cell for the specified column.
-     * @param columnIndex The index of the column for which to retrieve the value.
-     * @return The default value of the float cell.
-     * @throws InvalidDataTypeValueException
-     */
-    public final float getFloatDefaultForColumn(final int columnIndex)
-            throws InvalidDataTypeValueException {
-        if (columnIndex < 0 || columnIndex >= this.columns.size())
-            throw new ArrayIndexOutOfBoundsException("Column could not be found.");
+    public float getFloatDefaultForColumn(int column) {
+        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable[%s]: Invalid col number [%s]. Cols=[%s]", this.name, column, getNumColumns());
+        Preconditions.checkArgument(types.get(column).getBasicType() == DataTableColumnType.DataType.Float, "Wrong data type for column %s.", column);
 
-        final DataTableColumnType dataType = this.types.get(columnIndex);
-
-        if (!DataTableColumnType.DataType.Float.equals(dataType.getBasicType())) {
-            throw new IllegalArgumentException(
-                    String.format("Wrong data type for column %d", columnIndex));
-        }
-
-        return Float.parseFloat(dataType.mangleValue(""));
+        return Float.parseFloat(getDataTypeForColumn(column).mangleValue());
     }
 
-    /**
-     * Gets all the values in the specified column as ints.
-     * @param columnName The name of the column from which to retrieve values.
-     * @return A collection of int values from the specified column for each row in the DataTable.
-     */
-    public final TIntCollection getIntColumn(final String columnName) {
-        return getIntColumn(findColumnNumber(columnName));
+
+    public String getStringValue(final String column, int row) {
+        final int columnIndex = findColumnNumber(column);
+        Preconditions.checkArgument(columnIndex >= 0 && columnIndex < getNumColumns(), "DataTable Column [%s] is invalid.", column);
+
+        return getStringValue(columnIndex, row);
     }
 
-    /**
-     * Gets all the values in the specified column as ints.
-     * @param columnIndex The index of the column from which to retrieve values.
-     * @return A collection of int values from the specified column for each row in the DataTable.
-     */
-    public final TIntCollection getIntColumn(final int columnIndex) {
-        if (columnIndex < 0 || columnIndex >= this.columns.size())
-            throw new ArrayIndexOutOfBoundsException("Column could not be found.");
+    public String getStringValue(int column, int row) {
+        Preconditions.checkArgument(row >= 0 && row < getNumRows(), "Row [%s] is invalid. Rows [%s]", row, getNumRows());
+        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "Column [%s] is invalid. Columns [%s]", column, getNumColumns());
+        Preconditions.checkArgument(
+                types.get(column).getBasicType() == DataTableColumnType.DataType.String,
+                "Wrong data type for column %s (%s). Current data type is %s.",
+                getColumnName(column),
+                column,
+                getDataTypeForColumn(column).getTypeSpecString());
 
-        final TIntCollection collection = new TIntArrayList(this.numRows);
 
-        for (int row = 0; row < this.numRows; row++) {
-            final DataTableCell cell = this.cells.get(columnIndex + row * this.numCols);
-            collection.add(cell.getIntValue());
-        }
+        final DataTableCell cell = getDataTableCell(column, row);
 
-        return TCollections.unmodifiableCollection(collection);
-    }
-
-    /**
-     * Gets the float value of the cell in the column specified, at the row specified.
-     * @param columnName The name of the column from which to retrieve the value.
-     * @param row The row from which to retrieve the value.
-     * @return The float value in the cell specified by the column and row.
-     */
-    public final int getIntValue(final String columnName, int row) {
-        return getIntValue(findColumnNumber(columnName), row);
-    }
-
-    /**
-     * Gets the int value of the cell in the column specified, at the row specified.
-     * @param columnIndex The index of the column from which to retrieve the value.
-     * @param row The row from which to retrieve the value.
-     * @return The int value in the cell specified by the column and row.
-     */
-    public final int getIntValue(final int columnIndex, int row) {
-        final DataTableCell cell = this.cells.get(columnIndex + row * this.numCols);
-
-        return cell.getIntValue();
-    }
-
-    /**
-     * Gets the default value of a int cell for the specified column.
-     * @param columnName The name of the column for which to retrieve the value.
-     * @return The default value of the int cell.
-     * @throws InvalidDataTypeValueException
-     */
-    public final int getIntDefaultForColumn(final String columnName)
-            throws InvalidDataTypeValueException {
-        return getIntDefaultForColumn(findColumnNumber(columnName));
-    }
-
-    /**
-     * Gets the default value of a int cell for the specified column.
-     * @param columnIndex The index of the column for which to retrieve the value.
-     * @return The default value of the int cell.
-     * @throws InvalidDataTypeValueException
-     */
-    public final int getIntDefaultForColumn(final int columnIndex)
-            throws InvalidDataTypeValueException {
-        if (columnIndex < 0 || columnIndex >= this.columns.size())
-            throw new ArrayIndexOutOfBoundsException("Column could not be found.");
-
-        final DataTableColumnType dataType = this.types.get(columnIndex);
-
-        if (!DataTableColumnType.DataType.Int.equals(dataType.getBasicType())) {
-            throw new IllegalArgumentException(
-                    String.format("Wrong data type for column %d", columnIndex));
-        }
-
-        return Integer.parseInt(dataType.mangleValue(""));
-    }
-
-    /**
-     * Gets all the values in the specified column as strings.
-     * @param columnName The name of the column from which to retrieve values.
-     * @return A collection of string values from the specified column for each row in the DataTable.
-     */
-    public final Collection<String> getStringColumn(final String columnName) {
-        return getStringColumn(findColumnNumber(columnName));
-    }
-
-    /**
-     * Gets all the values in the specified column as strings.
-     * @param columnIndex The index of the column from which to retrieve values.
-     * @return A collection of string values from the specified column for each row in the DataTable.
-     */
-    public final Collection<String> getStringColumn(final int columnIndex) {
-        if (columnIndex < 0 || columnIndex >= this.columns.size())
-            throw new ArrayIndexOutOfBoundsException("Column could not be found.");
-
-        final Collection<String> collection = new ArrayList<>(this.numRows);
-
-        for (int row = 0; row < this.numRows; row++) {
-            final DataTableCell cell = this.cells.get(columnIndex + row * this.numCols);
-            collection.add(cell.getStringValue());
-        }
-
-        return Collections.unmodifiableCollection(collection);
-    }
-
-    /**
-     * Gets the float value of the cell in the column specified, at the row specified.
-     * @param columnName The name of the column from which to retrieve the value.
-     * @param row The row from which to retrieve the value.
-     * @return The float value in the cell specified by the column and row.
-     */
-    public final String getStringValue(final String columnName, int row) {
-        return getStringValue(findColumnNumber(columnName), row);
-    }
-
-    /**
-     * Gets the string value of the cell in the column specified, at the row specified.
-     * @param columnIndex The index of the column from which to retrieve the value.
-     * @param row The row from which to retrieve the value.
-     * @return The string value in the cell specified by the column and row.
-     */
-    public final String getStringValue(final int columnIndex, int row) {
-        final DataTableCell cell = this.cells.get(columnIndex + row * this.numCols);
+        Preconditions.checkArgument(cell.getType() == DataTableCell.CellType.String, "Could not convert row %s column %s to string value.", row, column);
 
         return cell.getStringValue();
     }
 
-    /**
-     * Gets the default value of a string cell for the specified column.
-     * @param columnName The name of the column for which to retrieve the value.
-     * @return The default value of the string cell.
-     * @throws InvalidDataTypeValueException
-     */
-    public final String getStringDefaultForColumn(final String columnName)
-            throws InvalidDataTypeValueException {
-        return getStringDefaultForColumn(findColumnNumber(columnName));
+    public String getStringDefaultForColumn(final String column) {
+        final int columnIndex = findColumnNumber(column);
+        Preconditions.checkArgument(columnIndex >= 0 && columnIndex < getNumColumns(), "DataTable Column [%s] is invalid.", column);
+
+        return getStringDefaultForColumn(columnIndex);
+    }
+
+    public String getStringDefaultForColumn(int column) {
+        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable [%s]: Invalid col number [%s]. Cols=[%s]", this.name, column, getNumColumns());
+        Preconditions.checkArgument(types.get(column).getBasicType() == DataTableColumnType.DataType.String, "Wrong data type for column %s.", column);
+
+        return getDataTypeForColumn(column).mangleValue();
+    }
+
+    public int[] getIntColumn(final String column) {
+        final int columnIndex = findColumnNumber(column);
+        Preconditions.checkArgument(columnIndex >= 0 && columnIndex < getNumColumns(), "DataTable Column [%s] is invalid.", column);
+
+        return getIntColumn(columnIndex);
+    }
+
+    public int[] getIntColumn(int column) {
+        final int numRows = getNumRows();
+        final int[] array = new int[numRows];
+
+        for (int row = 0; row < numRows; ++row) {
+            array[row] = getIntValue(column, row);
+        }
+
+        return array;
+    }
+
+    public long[] getLongColumn(final String column) {
+        final int columnIndex = findColumnNumber(column);
+        Preconditions.checkArgument(columnIndex >= 0 && columnIndex < getNumColumns(), "DataTable Column [%s] is invalid.", column);
+
+        return getLongColumn(columnIndex);
+    }
+
+    public long[] getLongColumn(int column) {
+        final int numRows = getNumRows();
+        final long[] array = new long[numRows];
+
+        for (int row = 0; row < numRows; ++row) {
+            array[row] = getIntValue(column, row); //Seems like a bug to me, but this is how it was coded...
+        }
+
+        return array;
+    }
+
+    public float[] getFloatColumn(final String column) {
+        final int columnIndex = findColumnNumber(column);
+        Preconditions.checkArgument(columnIndex >= 0 && columnIndex < getNumColumns(), "DataTable Column [%s] is invalid.", column);
+
+        return getFloatColumn(columnIndex);
+    }
+
+    public float[] getFloatColumn(int column) {
+        final int numRows = getNumRows();
+        final float[] array = new float[numRows];
+
+        for (int row = 0; row < numRows; ++row) {
+            array[row] = getFloatValue(column, row);
+        }
+
+        return array;
+    }
+
+    public String[] getStringColumn(final String column) {
+        final int columnIndex = findColumnNumber(column);
+        Preconditions.checkArgument(columnIndex >= 0 && columnIndex < getNumColumns(), "DataTable Column [%s] is invalid.", column);
+
+        return getStringColumn(columnIndex);
+    }
+
+    public String[] getStringColumn(int column) {
+        final int numRows = getNumRows();
+        final String[] array = new String[numRows];
+
+        for (int row = 0; row < numRows; ++row) {
+            array[row] = getStringValue(column, row);
+        }
+
+        return array;
     }
 
     /**
-     * Gets the default value of a string cell for the specified column.
-     * @param columnIndex The index of the column for which to retrieve the value.
-     * @return The default value of the string cell.
-     * @throws InvalidDataTypeValueException
+     * Gets the total number of columns for this DataTable.
+     * @return The total number of columns.
      */
-    public final String getStringDefaultForColumn(final int columnIndex)
-            throws InvalidDataTypeValueException {
-        if (columnIndex < 0 || columnIndex >= this.columns.size())
-            throw new ArrayIndexOutOfBoundsException("Column could not be found.");
-
-        final DataTableColumnType dataType = this.types.get(columnIndex);
-
-        if (!DataTableColumnType.DataType.String.equals(dataType.getBasicType())) {
-            throw new IllegalArgumentException(
-                    String.format("Wrong data type for column %d", columnIndex));
-        }
-
-        return dataType.mangleValue("");
+    public int getNumColumns() {
+        return columns.size();
     }
 
-    private final void load0000(Iff iff) {
-        logger.error("Unsupported data table of type 0000 [{}]", name);
+    /**
+     * Gets the total number of rows for this DataTable.
+     * @return The total number of rows.
+     */
+    public int getNumRows() {
+        return cells.size() / columns.size();
+    }
 
-        iff.openChunk(ID_COLS);
+    public int searchColumnString(int column, final String searchValue) {
+        throw new UnsupportedOperationException("Not implemented.");
+    }
 
-        this.numCols = iff.readInt();
 
-        this.columns = new ArrayList<>(this.numCols);
+    public int searchColumnFloat(int column, float searchValue) {
+        throw new UnsupportedOperationException("Not implemented.");
+    }
 
-        for (int col = 0; col < this.numCols; col++) {
+    public int searchColumnInt(int column, int searchValue) {
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    /**
+     * Loads this DataTable from an IFF file.
+     *
+     * @param iff The IFF file to load.
+     * @throws IllegalArgumentException If the DataTable is of an unknown file format.
+     */
+    public void load(final Iff iff, final DataTableManager dataTableManager) {
+        iff.enterForm(DataTable.ID_DTII);
+
+        int version = iff.getCurrentName();
+
+        if (version == DataTable.ID_0000) {
+            load0000(iff, dataTableManager);
+        } else if (version == DataTable.ID_0001) {
+            load0001(iff, dataTableManager);
+        } else {
+            Preconditions.checkArgument(false, "Unknown DataTable file format [%s].", Iff.getChunkName(version));
+        }
+
+        iff.exitForm(DataTable.ID_DTII);
+
+        buildColumnIndexMap();
+
+        if (iff.getFileName() != null)
+            this.name = iff.getFileName();
+    }
+
+    /**
+     * Gets a DataTableCell at the given column and row.
+     *
+     * @param column The column index for the DataTableCell.
+     * @param row    The row index for the DataTableCell.
+     * @return The DataTableCell at the given column and row.
+     */
+    private DataTableCell getDataTableCell(int column, int row) {
+        return cells.get(row * getNumColumns() + column);
+    }
+
+    private void readCell(final Iff iff, int column, int row) {
+        final DataTableColumnType typeCol = types.get(column);
+
+        switch (typeCol.getBasicType()) {
+            case Int: {
+                this.cells.add(new DataTableCell(iff.readInt()));
+                break;
+            }
+            case Float: {
+                this.cells.add(new DataTableCell(iff.readFloat()));
+                break;
+            }
+            case String: {
+                this.cells.add(new DataTableCell(iff.readString()));
+                break;
+            }
+            case Unknown:
+            case HashString:
+            case Enum:
+            case Bool:
+            case BitVector:
+            case Comment:
+            case PackedObjVars:
+            default:
+                Preconditions.checkArgument(false, "Bad case.");
+        }
+    }
+
+    private void load0000(final Iff iff, final DataTableManager dataTableManager) {
+        iff.enterForm(DataTable.ID_0000);
+        iff.enterChunk(DataTable.ID_COLS);
+
+        int numCols = iff.readInt();
+
+        this.columns = new ArrayList<>(numCols);
+        this.types = new ArrayList<>(numCols);
+
+        for (int i = 0; i < numCols; ++i) {
             this.columns.add(iff.readString());
         }
 
-        iff.closeChunk(); //ID_COLS
-        iff.openChunk(ID_TYPE);
+        iff.exitChunk(DataTable.ID_COLS);
 
-        //float = 1
-        //string = ??
-        //int = ??
+        iff.enterChunk(DataTable.ID_TYPE);
 
-        iff.closeChunk(); //ID_TYPE
-        iff.openChunk(ID_ROWS);
+        for (int i = 0; i < numCols; ++i) {
+            DataTableColumnType.DataType dataType = DataTableColumnType.DataType.values()[iff.readInt()];
 
-        iff.closeChunk(); //ID_ROWS
-    }
-
-    private final void load0001(Iff iff) {
-        iff.openChunk(ID_COLS);
-
-        this.numCols = iff.readInt();
-
-        this.columns = new ArrayList<>(this.numCols);
-
-        for (int col = 0; col < this.numCols; col++) {
-            this.columns.add(iff.readString());
-        }
-
-        iff.closeChunk(); //ID_COLS
-        iff.openChunk(ID_TYPE);
-
-        this.types = new ArrayList<>(this.numCols);
-
-        for (int col = 0; col < this.numCols; col++) {
-            this.types.add(new DataTableColumnType(iff.readString()));
-        }
-
-        iff.closeChunk(); //ID_TYPE
-        iff.openChunk(ID_ROWS);
-
-        this.numRows = iff.readInt();
-
-        this.cells = new ArrayList<DataTableCell>(this.numRows * this.numCols);
-
-        for (int row = 0; row < this.numRows; row++) {
-            for (int col = 0; col < this.numCols; col++) {
-                readCell(iff, col, row);
+            switch (dataType) {
+                case Int: {
+                    this.types.add(new DataTableColumnType("i", dataTableManager));
+                    break;
+                }
+                case Float: {
+                    this.types.add(new DataTableColumnType("f", dataTableManager));
+                    break;
+                }
+                case String: {
+                    this.types.add(new DataTableColumnType("s", dataTableManager));
+                    break;
+                }
+                default: {
+                    Preconditions.checkArgument(false, "Unknown column type loaded from version 0000.");
+                }
             }
         }
 
-        iff.closeChunk(); //ID_ROWS
-    }
+        iff.exitChunk(DataTable.ID_TYPE);
 
-    private final void readCell(Iff iff, int column, int row) {
-        final DataTableColumnType columnType = this.types.get(column);
-        final DataTableCell cell;
+        iff.enterChunk(DataTable.ID_ROWS);
 
-        switch (columnType.getBasicType()) {
-            case Int:
-                cell = new DataTableIntCell(iff.readInt());
-                break;
-            case Float:
-                cell = new DataTableFloatCell(iff.readFloat());
-                break;
-            case String:
-                cell = new DataTableStringCell(iff.readString());
-                break;
-            default:
-                throw new UnsupportedOperationException(String.format("Unknown basic type of cell [%d].",
-                        columnType.getBasicType()));
+        int numRows = iff.readInt();
+
+        this.cells = new ArrayList<>(numRows * numCols);
+
+        for (int r = 0; r < numRows; ++r) {
+            for (int c = 0; c < numCols; ++c) {
+                readCell(iff, c, r);
+            }
         }
 
-        int index = column + row * this.numCols;
+        iff.exitChunk(DataTable.ID_ROWS);
+        iff.exitForm(DataTable.ID_0000);
+    }
 
-        //If the cell is already in the list somehow, then overwrite it.
-        if (this.cells.size() >= index) {
-            this.cells.set(index, cell);
-        } else {
-            this.cells.add(cell);
+    private void load0001(Iff iff, final DataTableManager dataTableManager) {
+        iff.enterForm(DataTable.ID_0001);
+
+        iff.enterChunk(DataTable.ID_COLS);
+
+        final int numCols = iff.readInt();
+
+        this.columns = new ArrayList<>(numCols);
+        this.types = new ArrayList<>(numCols);
+
+        for (int i = 0; i < numCols; ++i) {
+            this.columns.add(iff.readString());
+        }
+
+        iff.exitChunk(DataTable.ID_COLS);
+        iff.enterChunk(DataTable.ID_TYPE);
+
+        for (int i = 0; i < numCols; ++i) {
+            this.types.add(new DataTableColumnType(iff.readString(), dataTableManager));
+        }
+
+        iff.exitChunk(DataTable.ID_TYPE);
+
+        iff.enterChunk(DataTable.ID_ROWS);
+
+        final int numRows = iff.readInt();
+
+        this.cells = new ArrayList<>(numRows * numCols);
+
+        for (int r = 0; r < numRows; ++r) {
+            for (int c = 0; c < numCols; ++c) {
+                readCell(iff, c, r);
+            }
+        }
+
+        iff.exitChunk(DataTable.ID_ROWS);
+        iff.exitForm(DataTable.ID_0001);
+
+    }
+
+    /**
+     * Builds a reverse lookup index for finding the index of a column by name.
+     *
+     * @
+     */
+    private void buildColumnIndexMap() {
+        final int numCols = this.columns.size();
+
+        this.columnIndexMap = new TObjectIntHashMap<>(numCols);
+
+        for (int columnIndex = 0; columnIndex < numCols; ++columnIndex) {
+            final String columnName = this.columns.get(columnIndex);
+            this.columnIndexMap.put(columnName, columnIndex);
         }
     }
 }

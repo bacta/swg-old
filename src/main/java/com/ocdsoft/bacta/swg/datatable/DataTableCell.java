@@ -1,47 +1,62 @@
 package com.ocdsoft.bacta.swg.datatable;
 
-import com.ocdsoft.bacta.engine.buffer.ByteBufferWritable;
-
-import java.nio.ByteBuffer;
+import com.ocdsoft.bacta.soe.util.SOECRC32;
 
 /**
  * Created by crush on 2/8/15.
  */
-public abstract class DataTableCell {
-    private final CellType cellType;
+public final class DataTableCell {
+    private final CellType type;
 
-    public DataTableCell(final CellType cellType) {
-        this.cellType = cellType;
+    private int intValue;
+    private float floatValue;
+    private String stringValue;
+    private int stringValueCrc;
+
+    public DataTableCell(int value) {
+        this.type = CellType.Int;
+        this.intValue = value;
     }
 
-    public final CellType getType() {
-        return cellType;
+    public DataTableCell(float value) {
+        this.type = CellType.Float;
+        this.floatValue = value;
     }
 
-    public String getStringValue() {
-        throw new UnsupportedOperationException("Attempted to get a string value from a non string cell type.");
+    public DataTableCell(final String value) {
+        this.type = CellType.String;
+        this.stringValue = value;
+        this.stringValueCrc = SOECRC32.hashCode(value);
     }
 
-    public int getStringValueCrc() {
-        throw new UnsupportedOperationException("Attempted to get a string value from a non string cell type.");
+    public CellType getType() {
+        return type;
     }
 
     public int getIntValue() {
-        throw new UnsupportedOperationException("Attempted to get a int value from a non int cell type.");
+        return this.intValue;
     }
 
     public float getFloatValue() {
-        throw new UnsupportedOperationException("Attempted to get a float value from a non float cell type.");
+        return this.floatValue;
     }
 
-    public static enum CellType {
+    public String getStringValue() {
+        return this.stringValue;
+    }
+
+    public int getStringValueCrc() {
+        return this.stringValueCrc;
+    }
+
+    public enum CellType {
         String(0),
         Int(1),
         Float(2);
 
         private final int value;
 
-        private CellType(int value) {
+        CellType(int value) {
             this.value = value;
         }
 
