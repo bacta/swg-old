@@ -1,16 +1,23 @@
 package com.ocdsoft.bacta.swg.shared.object.template.param;
 
+import bacta.iff.Iff;
+
 /**
- * Created by crush on 4/1/14.
+ * Created by crush on 11/21/2015.
  */
-public class TriggerVolumeParam extends TemplateBase<TriggerVolumeParam> {
-    private TriggerVolumeParamData dataSingle;
+public final class TriggerVolumeParam extends TemplateBase<TriggerVolumeParamData, TriggerVolumeParamData> {
+    @Override
+    public void loadFromIff(Iff iff) {
+
+    }
 
     @Override
-    public TriggerVolumeParam createNewParam() { return new TriggerVolumeParam(); }
+    public void saveToIff(Iff iff) {
+
+    }
 
     @Override
-    public TriggerVolumeParam createDeepCopy() {
+    protected TemplateBase<TriggerVolumeParamData, TriggerVolumeParamData> createNewParam() {
         return null;
     }
 }

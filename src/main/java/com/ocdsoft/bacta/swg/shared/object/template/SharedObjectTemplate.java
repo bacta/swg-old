@@ -1,6 +1,6 @@
 package com.ocdsoft.bacta.swg.shared.object.template;
 
-import com.ocdsoft.bacta.swg.shared.localization.StringId;
+import com.ocdsoft.bacta.swg.localization.StringId;
 import com.ocdsoft.bacta.swg.shared.object.template.param.*;
 import com.ocdsoft.bacta.swg.shared.slot.ArrangementDescriptor;
 import com.ocdsoft.bacta.swg.shared.slot.SlotDescriptor;
@@ -160,31 +160,31 @@ public class SharedObjectTemplate extends ObjectTemplate {
 
     public final StringId getObjectName() {
         if (objectName.isLoaded()) {
-            return objectName.getValue();
+            return objectName.getStringIdValue();
         } else if (baseData != null && baseData instanceof SharedObjectTemplate) {
             return ((SharedObjectTemplate) baseData).getObjectName();
         } else {
-            return StringId.defaultStringId;
+            return StringId.Invalid;
         }
     }
 
     public final StringId getDetailedDescription() {
         if (detailedDescription.isLoaded()) {
-            return detailedDescription.getValue();
+            return detailedDescription.getStringIdValue();
         } else if (baseData != null && baseData instanceof SharedObjectTemplate) {
             return ((SharedObjectTemplate) baseData).getDetailedDescription();
         } else {
-            return StringId.defaultStringId;
+            return StringId.Invalid;
         }
     }
 
     public final StringId getLookAtText() {
         if (lookAtText.isLoaded()) {
-            return lookAtText.getValue();
+            return lookAtText.getStringIdValue();
         } else if (baseData != null && baseData instanceof SharedObjectTemplate) {
             return ((SharedObjectTemplate) baseData).getLookAtText();
         } else {
-            return StringId.defaultStringId;
+            return StringId.Invalid;
         }
     }
 

@@ -2,8 +2,6 @@ package com.ocdsoft.bacta.swg.shared.slot;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.ocdsoft.bacta.swg.shared.iff.chunk.ChunkBufferContext;
-import com.ocdsoft.bacta.swg.shared.iff.chunk.ChunkReader;
 import com.ocdsoft.bacta.tre.TreeFile;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
@@ -48,20 +46,20 @@ public class ArrangementDescriptorList {
                     arrangementDescriptor.addArrangement(arrangementSlots);
                 }
 
-                ChunkReader chunkReader = new ChunkReader(filename, treeFile.open(filename));
-                chunkReader.nextChunk(); //ARGD
-                chunkReader.nextChunk(); //0000
-
-                while (chunkReader.hasMoreChunks()) {
-                    ChunkBufferContext context = chunkReader.nextChunk();
-
-                    TIntList arrangementSlots = new TIntArrayList();
-
-                    while (context.hasMoreBytes(chunkReader.readerIndex()))
-                        arrangementSlots.add(slotIdManager.findSlotId(chunkReader.readNullTerminatedAscii()));
-
-                    arrangementDescriptor.addArrangement(arrangementSlots);
-                }
+//                ChunkReader chunkReader = new ChunkReader(filename, treeFile.open(filename));
+//                chunkReader.nextChunk(); //ARGD
+//                chunkReader.nextChunk(); //0000
+//
+//                while (chunkReader.hasMoreChunks()) {
+//                    ChunkBufferContext context = chunkReader.nextChunk();
+//
+//                    TIntList arrangementSlots = new TIntArrayList();
+//
+//                    while (context.hasMoreBytes(chunkReader.readerIndex()))
+//                        arrangementSlots.add(slotIdManager.findSlotId(chunkReader.readNullTerminatedAscii()));
+//
+//                    arrangementDescriptor.addArrangement(arrangementSlots);
+//                }
 
                 descriptors.put(filename, arrangementDescriptor);
             }

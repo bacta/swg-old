@@ -2,7 +2,6 @@ package com.ocdsoft.bacta.swg.shared.slot;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.ocdsoft.bacta.swg.shared.iff.chunk.ChunkReader;
 import com.ocdsoft.bacta.tre.TreeFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,33 +48,33 @@ public class SlotIdManager {
         if (!treeFile.exists(definitionsFile)) {
             logger.warn("Cannot load slot definitions because the file <{}> could not be found.", definitionsFile);
         } else {
-            ChunkReader chunkReader = new ChunkReader(definitionsFile, treeFile.open(definitionsFile));
-            chunkReader.nextChunk(); //0006
-            chunkReader.nextChunk(); //DATA
-
-            while (chunkReader.hasMoreChunks()) {
-                Slot slot = new Slot();
-                slot.slotName = chunkReader.readNullTerminatedAscii();
-
-                logger.trace("Loading slot description for slot {}.", slot.slotName);
-
-                boolean isSlotThatHoldsAnything = chunkReader.readBoolean();
-
-                slot.isPlayerModifiable = chunkReader.readBoolean();
-                slot.isAppearanceRelated = chunkReader.readBoolean();
-                slot.hardpointName = chunkReader.readNullTerminatedAscii();
-                slot.combatBone = chunkReader.readShort();
-                slot.observeWithParent = chunkReader.readBoolean();
-                slot.exposeWithParent = chunkReader.readBoolean();
-
-                slots.add(slot);
-
-                if (isSlotThatHoldsAnything)
-                    slotsThatHoldAnything.add(slot.slotName);
-            }
-
-            chunkReader.closeChunk();
-            chunkReader.closeChunk();
+//            ChunkReader chunkReader = new ChunkReader(definitionsFile, treeFile.open(definitionsFile));
+//            chunkReader.nextChunk(); //0006
+//            chunkReader.nextChunk(); //DATA
+//
+//            while (chunkReader.hasMoreChunks()) {
+//                Slot slot = new Slot();
+//                slot.slotName = chunkReader.readNullTerminatedAscii();
+//
+//                logger.trace("Loading slot description for slot {}.", slot.slotName);
+//
+//                boolean isSlotThatHoldsAnything = chunkReader.readBoolean();
+//
+//                slot.isPlayerModifiable = chunkReader.readBoolean();
+//                slot.isAppearanceRelated = chunkReader.readBoolean();
+//                slot.hardpointName = chunkReader.readNullTerminatedAscii();
+//                slot.combatBone = chunkReader.readShort();
+//                slot.observeWithParent = chunkReader.readBoolean();
+//                slot.exposeWithParent = chunkReader.readBoolean();
+//
+//                slots.add(slot);
+//
+//                if (isSlotThatHoldsAnything)
+//                    slotsThatHoldAnything.add(slot.slotName);
+//            }
+//
+//            chunkReader.closeChunk();
+//            chunkReader.closeChunk();
 
             Collections.sort(slots, lessSlotNameComparator);
         }

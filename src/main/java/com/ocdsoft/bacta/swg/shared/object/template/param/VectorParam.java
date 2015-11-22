@@ -1,44 +1,82 @@
 package com.ocdsoft.bacta.swg.shared.object.template.param;
 
-/**
- * Created by crush on 3/4/14.
- */
-public final class VectorParam extends TemplateBase<VectorParam> {
-    private VectorParamData dataSingle;
+import bacta.iff.Iff;
+import com.google.common.base.Preconditions;
 
-    public VectorParamData getSingle() {
-        return dataSingle;
+import java.util.ArrayList;
+
+/**
+ * Created by crush on 11/21/2015.
+ */
+public final class VectorParam extends TemplateBase<VectorParamData, VectorParamData> {
+    @Override
+    public void cleanSingleParam() {
+        dataSingle.x.cleanData();
+        dataSingle.y.cleanData();
+        dataSingle.z.cleanData();
+        dataSingle.radius.cleanData();
     }
 
     @Override
-    public VectorParam createNewParam() { return new VectorParam(); }
+    public void loadFromIff(Iff iff) {
+        final DataTypeId dataType = DataTypeId.forValue(iff.readByte());
 
-    @Override
-    public VectorParam createDeepCopy() {
-        VectorParam param = createNewParam();
-        param.dataType = this.dataType;
-        param.loaded = this.loaded;
+        switch (dataType) {
+            case SINGLE:
+                if (dataType == DataTypeId.WEIGHTED_LIST)
+                    cleanData();
 
-        switch (this.dataType) {
-            case DataTypeId.None:
+                this.dataType = DataTypeId.SINGLE;
+                dataSingle.ignoreY = iff.readBoolean();
+                dataSingle.x.loadFromIff(iff);
+                if (!dataSingle.ignoreY)
+                    dataSingle.y.loadFromIff(iff);
+                dataSingle.z.loadFromIff(iff);
+                dataSingle.radius.loadFromIff(iff);
+                loaded = true;
                 break;
-            case DataTypeId.Single:
-                param.dataSingle = this.dataSingle;
+            case WEIGHTED_LIST:
+                setValue(new ArrayList<>());
+                loadWeightedListFromIff(iff);
                 break;
-            case DataTypeId.WeightedList:
-                WeightedValueList thisList = (WeightedValueList)data;
-                WeightedValueList thatList = new WeightedValueList(thisList.size());
-
-                for (WeightedValue weightedValue : thisList)
-                    thatList.add(new WeightedValue(weightedValue));
-
-                param.data = thatList;
-                break;
+            case NONE:
+                cleanData();
+            case RANGE:
+            case DIE_ROLL:
             default:
-                logger.debug("Attempted to create deep copy for unknown data type <{}>.", this.dataType);
+                Preconditions.checkArgument(false, "loaded unknown data type %s for template vector param.", dataType);
                 break;
         }
+    }
 
-        return param;
+    @Override
+    public void saveToIff(Iff iff) {
+        iff.insertChunkData((byte) dataType.getValue());
+
+        switch (dataType) {
+            case SINGLE:
+                iff.insertChunkData(dataSingle.ignoreY);
+                dataSingle.x.saveToIff(iff);
+                if (!dataSingle.ignoreY)
+                    dataSingle.y.saveToIff(iff);
+                dataSingle.z.saveToIff(iff);
+                dataSingle.radius.saveToIff(iff);
+                break;
+            case WEIGHTED_LIST:
+                saveWeightedListToIff(iff);
+                break;
+            case NONE:
+                break;
+            case RANGE:
+            case DIE_ROLL:
+            default:
+                Preconditions.checkArgument(false, "saving unknown data type %s for template vector param.", dataType);
+                break;
+        }
+    }
+
+    @Override
+    protected TemplateBase<VectorParamData, VectorParamData> createNewParam() {
+        return new VectorParam();
     }
 }

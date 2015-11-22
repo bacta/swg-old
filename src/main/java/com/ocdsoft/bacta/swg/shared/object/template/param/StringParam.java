@@ -1,90 +1,69 @@
 package com.ocdsoft.bacta.swg.shared.object.template.param;
 
-public final class StringParam extends TemplateBase<StringParam> {
-    protected String dataSingle;
+import bacta.iff.Iff;
+import com.google.common.base.Preconditions;
 
-    public String getValue() {
-        String result = "";
+import java.util.ArrayList;
 
-        switch (this.dataType) {
-            case DataTypeId.Single:
-                result = getSingle();
+/**
+ * Created by crush on 11/21/2015.
+ */
+public class StringParam extends TemplateBase<String, String> {
+    @Override
+    public void loadFromIff(Iff iff) {
+        final DataTypeId dataType = DataTypeId.forValue(iff.readByte());
+
+        switch (dataType) {
+            case SINGLE: {
+                setValue(iff.readString());
+
+                if (dataSingle.length() >= 7
+                        && dataSingle.endsWith(".iff")
+                        && dataSingle.indexOf('\\') != -1) {
+
+                    dataSingle = dataSingle.replace('\\', '/');
+                }
+
+                loaded = true;
                 break;
-            case DataTypeId.WeightedList:
-                int rand = random.nextInt(100) + 1;
-                WeightedValueList list = (WeightedValueList)this.data;
-                //TODO: Figure this out...
-                logger.debug("Attempting to get value of weighted value list, but it is currently unimplemented.");
+            }
+            case WEIGHTED_LIST:
+                setValue(new ArrayList<>());
+                loadWeightedListFromIff(iff);
                 break;
-            case DataTypeId.Range:
-                result = getRange();
-                break;
-            case DataTypeId.DieRoll:
-                result = getDieRoll();
-                break;
+            case NONE:
+                cleanData();
+            case RANGE:
+            case DIE_ROLL:
             default:
-                logger.debug("Unknown data type <{}>.", this.dataType);
+                Preconditions.checkState(false, "loaded unknown data type %s for template string param", dataType);
                 break;
         }
-
-        return result;
-    }
-
-    public String getSingle() {
-        return dataSingle;
-    }
-
-    public String getRange() {
-        throw new UnsupportedOperationException();
-    }
-
-    public String getDieRoll() {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setValue(String value) {
-        cleanData();
-        this.dataSingle = value;
-        this.dataType = DataTypeId.Single;
-        this.loaded = true;
-    }
-
-    public void setValue(WeightedValueList list) {
-        cleanData();
-        this.data = list;
-        this.dataType = DataTypeId.WeightedList;
-        this.loaded = true;
     }
 
     @Override
-    public StringParam createNewParam() { return new StringParam(); }
+    public void saveToIff(Iff iff) {
+        iff.insertChunkData((byte) dataType.getValue());
 
-    @Override
-    public StringParam createDeepCopy() {
-        StringParam param = createNewParam();
-        param.dataType = this.dataType;
-        param.loaded = this.loaded;
-
-        switch (this.dataType) {
-            case DataTypeId.None:
+        switch (dataType) {
+            case SINGLE:
+                iff.insertChunkData(dataSingle);
                 break;
-            case DataTypeId.Single:
-                param.dataSingle = this.dataSingle;
+            case WEIGHTED_LIST:
+                saveWeightedListToIff(iff);
                 break;
-            case DataTypeId.WeightedList:
-                WeightedValueList thisList = (WeightedValueList)data;
-                WeightedValueList thatList = new WeightedValueList(thisList.size());
-
-                for (WeightedValue weightedValue : thisList)
-                    thatList.add(new WeightedValue(weightedValue));
-
-                param.data = thatList;
+            case NONE:
                 break;
+            case DIE_ROLL:
+            case RANGE:
             default:
-                logger.debug("Attempted to create deep copy for unknown data type <{}>.", this.dataType);
+                Preconditions.checkArgument(false, "saving unknown data type %s for template string param.", dataType);
                 break;
         }
+    }
 
-        return param;
+    @Override
+    protected TemplateBase<String, String> createNewParam() {
+        return new StringParam();
     }
 }

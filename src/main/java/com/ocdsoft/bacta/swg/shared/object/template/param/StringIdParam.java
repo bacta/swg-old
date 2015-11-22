@@ -1,81 +1,101 @@
 package com.ocdsoft.bacta.swg.shared.object.template.param;
 
-import com.ocdsoft.bacta.swg.shared.localization.StringId;
+import bacta.iff.Iff;
+import com.google.common.base.Preconditions;
+import com.ocdsoft.bacta.swg.localization.StringId;
 
-public final class StringIdParam extends TemplateBase<StringIdParam> {
-    private StringIdParamData dataSingle;
+import java.util.ArrayList;
 
-    public StringId getValue() {
-        switch (this.dataType) {
-            case DataTypeId.Single:
-                return new StringId(
-                        this.dataSingle.table.getValue(),
-                        this.dataSingle.index.getValue());
-            case DataTypeId.WeightedList:
-                logger.debug("Attempting to get value of weighted value list, but it is currently unimplemented.");
+/**
+ * Created by crush on 11/21/2015.
+ */
+public class StringIdParam extends TemplateBase<StringIdParamData, StringIdParamData> {
+
+    public StringId getStringIdValue() {
+        if (dataType == DataTypeId.SINGLE) {
+
+            return new StringId(dataSingle.table.getValue(),
+                    dataSingle.index.getValue());
+
+        } else if (dataType == DataTypeId.WEIGHTED_LIST) {
+
+            int weight = random.nextInt(100) + 1;
+
+            for (int i = 0; i < weightedList.size(); ++i) {
+                weight -= weightedList.get(i).weight;
+
+                if (weight <= 0) {
+                    final StringIdParamData param = weightedList.get(i).value.getValue();
+                    return new StringId(param.table.getValue(), param.index.getValue());
+                }
+            }
+
+            Preconditions.checkState(false, "Weighted list does not equal 100.");
+        }
+
+        Preconditions.checkState(false, "Invalid type for string id param.");
+        return StringId.Invalid;
+    }
+
+    @Override
+    protected void cleanSingleParam() {
+        dataSingle.table.cleanData();
+        dataSingle.index.cleanData();
+    }
+
+    @Override
+    public void loadFromIff(final Iff iff) {
+        final DataTypeId dataType = DataTypeId.forValue(iff.readByte());
+
+        switch (dataType) {
+            case SINGLE: {
+                final StringIdParamData data = new StringIdParamData();
+                data.table.loadFromIff(iff);
+                data.index.loadFromIff(iff);
+                setValue(data);
+                loaded = true;
                 break;
+            }
+            case WEIGHTED_LIST: {
+                setValue(new ArrayList<>());
+                loadWeightedListFromIff(iff);
+                break;
+            }
+            case NONE:
+                cleanData();
+                break;
+            case RANGE:
+            case DIE_ROLL:
             default:
-                logger.debug("Unknown data type <{}>.", this.dataType);
+                Preconditions.checkArgument(false, "loaded unknown data type %s for template stringId param.", dataType);
                 break;
         }
-
-        return new StringId("string_id_table", 0);
-    }
-
-    public void setValue(StringIdParamData value) {
-        cleanData();
-        this.dataSingle = value;
-        this.dataType = DataTypeId.Single;
-        this.loaded = true;
-    }
-
-    public void setValue(WeightedValueList list) {
-        cleanData();
-        this.data = list;
-        this.dataType = DataTypeId.WeightedList;
-        this.loaded = true;
     }
 
     @Override
-    public void cleanSingleParam() {
-        if (this.dataSingle != null) {
-            this.dataSingle.table.cleanData();
-            this.dataSingle.index.cleanData();
-        }
-    }
+    public void saveToIff(final Iff iff) {
+        iff.insertChunkData((byte) dataType.getValue());
 
-    @Override
-    public StringIdParam createNewParam() { return new StringIdParam(); }
-
-    @Override
-    public StringIdParam createDeepCopy() {
-        StringIdParam param = createNewParam();
-        param.dataType = this.dataType;
-        param.loaded = this.loaded;
-
-        switch (this.dataType) {
-            case DataTypeId.None:
+        switch (dataType) {
+            case SINGLE:
+                dataSingle.table.saveToIff(iff);
+                dataSingle.index.saveToIff(iff);
                 break;
-            case DataTypeId.Single:
-                StringIdParamData data = new StringIdParamData();
-                data.table = this.dataSingle.table.createDeepCopy();
-                data.index = this.dataSingle.index.createDeepCopy();
-                param.dataSingle = data;
+            case WEIGHTED_LIST:
+                saveWeightedListToIff(iff);
                 break;
-            case DataTypeId.WeightedList:
-                WeightedValueList thisList = (WeightedValueList)this.data;
-                WeightedValueList thatList = new WeightedValueList(thisList.size());
-
-                for (WeightedValue weightedValue : thisList)
-                    thatList.add(new WeightedValue(weightedValue));
-
-                param.data = thatList;
+            case NONE:
                 break;
+            case RANGE:
+            case DIE_ROLL:
             default:
-                logger.debug("Attempted to create deep copy for unknown data type <{}>.", this.dataType);
+                Preconditions.checkArgument(false, "saving unknown data type %s for template stringId param.", dataType);
                 break;
         }
+    }
 
-        return param;
+    @Override
+    protected TemplateBase<StringIdParamData, StringIdParamData> createNewParam() {
+        return new StringIdParam();
     }
 }

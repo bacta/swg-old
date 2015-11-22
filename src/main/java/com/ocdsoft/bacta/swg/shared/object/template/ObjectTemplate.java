@@ -1,7 +1,7 @@
 package com.ocdsoft.bacta.swg.shared.object.template;
 
-import com.ocdsoft.bacta.swg.shared.iff.chunk.ChunkBuffer;
-import com.ocdsoft.bacta.swg.shared.object.crc.PersistentCrcString;
+import bacta.iff.Iff;
+import com.ocdsoft.bacta.swg.foundation.DataResource;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -10,55 +10,55 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by crush on 3/4/14.
  */
-public abstract class ObjectTemplate extends DataResource<ObjectTemplate> {
+public abstract class ObjectTemplate extends DataResource {
     protected final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
-    public static final int ID_DERV = ChunkBuffer.createChunkId("DERV"); //Derived from
-    public static final int ID_XXXX = ChunkBuffer.createChunkId("XXXX"); //Parameter
-    public static final int ID_PCNT = ChunkBuffer.createChunkId("PCNT"); //Parameter count
-    public static final int ID_CCLT = ChunkBuffer.createChunkId("CCLT");
-    public static final int ID_CPO  = ChunkBuffer.createChunkId("CPO ");
-    public static final int ID_CSFO = ChunkBuffer.createChunkId("CFSO");
-    public static final int ID_OUTL = ChunkBuffer.createChunkId("OUTL");
-    public static final int ID_RCCT = ChunkBuffer.createChunkId("RCCT");
-    public static final int ID_SBMK = ChunkBuffer.createChunkId("SBMK");
-    public static final int ID_SBOT = ChunkBuffer.createChunkId("SBOT");
-    public static final int ID_SCNC = ChunkBuffer.createChunkId("SCNC");
-    public static final int ID_SCOT = ChunkBuffer.createChunkId("SCOT");
-    public static final int ID_SCOU = ChunkBuffer.createChunkId("SCOU");
-    public static final int ID_SDSC = ChunkBuffer.createChunkId("SDSC");
-    public static final int ID_SFOT = ChunkBuffer.createChunkId("SFOT");
-    public static final int ID_SGLD = ChunkBuffer.createChunkId("SGLD");
-    public static final int ID_SGRP = ChunkBuffer.createChunkId("SGRP");
-    public static final int ID_SHOT = ChunkBuffer.createChunkId("SHOT");
-    public static final int ID_SIOT = ChunkBuffer.createChunkId("SIOT");
-    public static final int ID_SITN = ChunkBuffer.createChunkId("SITN");
-    public static final int ID_SJED = ChunkBuffer.createChunkId("SJED");
-    public static final int ID_SMLE = ChunkBuffer.createChunkId("SMLE");
-    public static final int ID_SMSC = ChunkBuffer.createChunkId("SMSC");
-    public static final int ID_SMSD = ChunkBuffer.createChunkId("SMSD");
-    public static final int ID_SMSO = ChunkBuffer.createChunkId("SMSO");
-    public static final int ID_SPLY = ChunkBuffer.createChunkId("SPLY");
-    public static final int ID_SSHP = ChunkBuffer.createChunkId("SSHP");
-    public static final int ID_STAT = ChunkBuffer.createChunkId("STAT");
-    public static final int ID_STER = ChunkBuffer.createChunkId("STER");
-    public static final int ID_STOK = ChunkBuffer.createChunkId("STOK");
-    public static final int ID_STOT = ChunkBuffer.createChunkId("STOT");
-    public static final int ID_SUNI = ChunkBuffer.createChunkId("SUNI");
-    public static final int ID_SVOT = ChunkBuffer.createChunkId("SVOT");
-    public static final int ID_SWAY = ChunkBuffer.createChunkId("SWAY");
-    public static final int ID_SWOT = ChunkBuffer.createChunkId("SWOT");
+    public static final int ID_DERV = Iff.createChunkId("DERV"); //Derived from
+    public static final int ID_XXXX = Iff.createChunkId("XXXX"); //Parameter
+    public static final int ID_PCNT = Iff.createChunkId("PCNT"); //Parameter count
+    public static final int ID_CCLT = Iff.createChunkId("CCLT");
+    public static final int ID_CPO = Iff.createChunkId("CPO ");
+    public static final int ID_CSFO = Iff.createChunkId("CFSO");
+    public static final int ID_OUTL = Iff.createChunkId("OUTL");
+    public static final int ID_RCCT = Iff.createChunkId("RCCT");
+    public static final int ID_SBMK = Iff.createChunkId("SBMK");
+    public static final int ID_SBOT = Iff.createChunkId("SBOT");
+    public static final int ID_SCNC = Iff.createChunkId("SCNC");
+    public static final int ID_SCOT = Iff.createChunkId("SCOT");
+    public static final int ID_SCOU = Iff.createChunkId("SCOU");
+    public static final int ID_SDSC = Iff.createChunkId("SDSC");
+    public static final int ID_SFOT = Iff.createChunkId("SFOT");
+    public static final int ID_SGLD = Iff.createChunkId("SGLD");
+    public static final int ID_SGRP = Iff.createChunkId("SGRP");
+    public static final int ID_SHOT = Iff.createChunkId("SHOT");
+    public static final int ID_SIOT = Iff.createChunkId("SIOT");
+    public static final int ID_SITN = Iff.createChunkId("SITN");
+    public static final int ID_SJED = Iff.createChunkId("SJED");
+    public static final int ID_SMLE = Iff.createChunkId("SMLE");
+    public static final int ID_SMSC = Iff.createChunkId("SMSC");
+    public static final int ID_SMSD = Iff.createChunkId("SMSD");
+    public static final int ID_SMSO = Iff.createChunkId("SMSO");
+    public static final int ID_SPLY = Iff.createChunkId("SPLY");
+    public static final int ID_SSHP = Iff.createChunkId("SSHP");
+    public static final int ID_STAT = Iff.createChunkId("STAT");
+    public static final int ID_STER = Iff.createChunkId("STER");
+    public static final int ID_STOK = Iff.createChunkId("STOK");
+    public static final int ID_STOT = Iff.createChunkId("STOT");
+    public static final int ID_SUNI = Iff.createChunkId("SUNI");
+    public static final int ID_SVOT = Iff.createChunkId("SVOT");
+    public static final int ID_SWAY = Iff.createChunkId("SWAY");
+    public static final int ID_SWOT = Iff.createChunkId("SWOT");
 
-    public static final int ID_CVMM = ChunkBuffer.createChunkId("CVMM");
-    public static final int ID_CSCV = ChunkBuffer.createChunkId("CSCV");
-    public static final int ID_RICV = ChunkBuffer.createChunkId("RICV");
-    public static final int ID_PCCV = ChunkBuffer.createChunkId("PCCV");
+    public static final int ID_CVMM = Iff.createChunkId("CVMM");
+    public static final int ID_CSCV = Iff.createChunkId("CSCV");
+    public static final int ID_RICV = Iff.createChunkId("RICV");
+    public static final int ID_PCCV = Iff.createChunkId("PCCV");
 
-    public static final int ID_SISS = ChunkBuffer.createChunkId("SISS");
-    public static final int ID_DSSA = ChunkBuffer.createChunkId("DSSA");
+    public static final int ID_SISS = Iff.createChunkId("SISS");
+    public static final int ID_DSSA = Iff.createChunkId("DSSA");
 
     //Server types...
-    public static final int ID_SRCO = ChunkBuffer.createChunkId("SRCO");
+    public static final int ID_SRCO = Iff.createChunkId("SRCO");
 
     @Getter @Setter
     protected ObjectTemplate baseData; //This is a reference to the derived from template.
@@ -66,10 +66,6 @@ public abstract class ObjectTemplate extends DataResource<ObjectTemplate> {
     public abstract int getId();
 
     public ObjectTemplate(final String templateName) {
-        super(new PersistentCrcString(templateName));
-    }
-
-    public ObjectTemplate(final PersistentCrcString templateName) {
         super(templateName);
     }
 

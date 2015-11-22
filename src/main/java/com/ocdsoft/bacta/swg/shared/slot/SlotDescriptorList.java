@@ -2,8 +2,6 @@ package com.ocdsoft.bacta.swg.shared.slot;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.ocdsoft.bacta.swg.shared.iff.chunk.ChunkBufferContext;
-import com.ocdsoft.bacta.swg.shared.iff.chunk.ChunkReader;
 import com.ocdsoft.bacta.tre.TreeFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,19 +35,19 @@ public class SlotDescriptorList {
         if (slotDescriptor == null) {
             if (treeFile.exists(filename)) {
                 slotDescriptor = new SlotDescriptor(filename);
-
-                ChunkReader chunkReader = new ChunkReader(filename, treeFile.open(filename));
-                chunkReader.nextChunk(); //SLTD
-                chunkReader.nextChunk(); //0000
-
-                ChunkBufferContext context = chunkReader.nextChunk(); //DATA
-
-                while (context.hasMoreBytes(chunkReader.readerIndex())) {
-                    String slotName = chunkReader.readNullTerminatedAscii();
-                    int slotId = slotIdManager.findSlotId(slotName);
-
-                    slotDescriptor.slots.add(slotIdManager.findSlotId(slotName));
-                }
+//
+//                ChunkReader chunkReader = new ChunkReader(filename, treeFile.open(filename));
+//                chunkReader.nextChunk(); //SLTD
+//                chunkReader.nextChunk(); //0000
+//
+//                ChunkBufferContext context = chunkReader.nextChunk(); //DATA
+//
+//                while (context.hasMoreBytes(chunkReader.readerIndex())) {
+//                    String slotName = chunkReader.readNullTerminatedAscii();
+//                    int slotId = slotIdManager.findSlotId(slotName);
+//
+//                    slotDescriptor.slots.add(slotIdManager.findSlotId(slotName));
+//                }
 
                 descriptors.put(filename, slotDescriptor);
             }

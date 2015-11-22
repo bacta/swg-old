@@ -1,18 +1,23 @@
 package com.ocdsoft.bacta.swg.shared.object.template.param;
 
-/**
- * Created by crush on 4/1/14.
- */
-public final class DynamicVariableParam extends TemplateBase<DynamicVariableParam> {
-    private DynamicVariableParamData dataSingle;
+import bacta.iff.Iff;
 
+/**
+ * Created by crush on 11/21/2015.
+ */
+public final class DynamicVariableParam extends TemplateBase<DynamicVariableParamData, DynamicVariableParamData> {
     @Override
-    public DynamicVariableParam createNewParam() {
-        return new DynamicVariableParam();
+    public void loadFromIff(Iff iff) {
+
     }
 
     @Override
-    public DynamicVariableParam createDeepCopy() {
+    public void saveToIff(Iff iff) {
+
+    }
+
+    @Override
+    protected TemplateBase<DynamicVariableParamData, DynamicVariableParamData> createNewParam() {
         return null;
     }
 }

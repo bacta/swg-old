@@ -1,93 +1,76 @@
 package com.ocdsoft.bacta.swg.shared.object.template.param;
 
+import bacta.iff.Iff;
+import com.google.common.base.Preconditions;
+
+import java.util.ArrayList;
+
 /**
- * Created by crush on 3/4/14.
+ * Created by crush on 11/21/2015.
  */
-public final class BoolParam extends TemplateBase<BoolParam> {
-    private boolean dataSingle;
+public final class BoolParam extends TemplateBase<Boolean, Boolean> {
+    private byte dataDeltaType; //if '+' or '-' then param is a delta on a derived template param.
 
-    public boolean getValue() {
-        boolean result = false;
-
-        switch (this.dataType) {
-            case DataTypeId.Single:
-                result = getSingle();
-                break;
-            case DataTypeId.WeightedList:
-                int rand = random.nextInt(100) + 1;
-                WeightedValueList list = (WeightedValueList)this.data;
-                //TODO: Figure this out...
-                logger.debug("Attempting to get value of weighted value list, but it is currently unimplemented.");
-                break;
-            case DataTypeId.Range:
-                result = getRange();
-                break;
-            case DataTypeId.DieRoll:
-                result = getDieRoll();
-                break;
-            default:
-                logger.debug("Unknown data type <{}>.", this.dataType);
-                break;
-        }
-
-        return result;
+    public byte getDeltaType() {
+        return dataDeltaType;
     }
 
-    public boolean getSingle() {
-        return dataSingle;
+    public void setDeltaType(final byte type) {
+        this.dataDeltaType = type;
     }
 
-    public boolean getRange() {
-        throw new UnsupportedOperationException();
-    }
-
-    public boolean getDieRoll() {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setValue(boolean value) {
-        cleanData();
-        this.dataSingle = value;
-        this.dataType = DataTypeId.Single;
-        this.loaded = true;
-    }
-
-    public void setValue(WeightedValueList list) {
-        cleanData();
-        this.data = list;
-        this.dataType = DataTypeId.WeightedList;
-        this.loaded = true;
+    public BoolParam() {
+        dataDeltaType = ' ';
     }
 
     @Override
-    public BoolParam createNewParam() { return new BoolParam(); }
+    public void loadFromIff(final Iff iff) {
+        final DataTypeId dataType = DataTypeId.forValue(iff.readByte());
+        dataDeltaType = iff.readByte();
 
-    @Override
-    public BoolParam createDeepCopy() {
-        BoolParam param = createNewParam();
-        param.dataType = this.dataType;
-        param.loaded = this.loaded;
-
-        switch (this.dataType) {
-            case DataTypeId.None:
+        switch (dataType) {
+            case SINGLE:
+                setValue(iff.readBoolean());
+                loaded = true;
+            case WEIGHTED_LIST:
+                setValue(new ArrayList<>());
+                loadWeightedListFromIff(iff);
                 break;
-            case DataTypeId.Single:
-                param.dataSingle = this.dataSingle;
+            case NONE:
+                cleanData();
                 break;
-            case DataTypeId.WeightedList:
-                WeightedValueList thisList = (WeightedValueList)data;
-                WeightedValueList thatList = new WeightedValueList(thisList.size());
-
-                for (WeightedValue weightedValue : thisList)
-                    thatList.add(new WeightedValue(weightedValue));
-
-                param.data = thatList;
-                break;
+            case DIE_ROLL:
+            case RANGE:
             default:
-                logger.debug("Attempted to create deep copy for unknown data type <{}>.", this.dataType);
+                Preconditions.checkArgument(false, "loaded unknown data type %s for template float param.", dataType);
                 break;
         }
+    }
 
-        return param;
+    @Override
+    public void saveToIff(final Iff iff) {
+        iff.insertChunkData((byte) dataType.getValue());
+        iff.insertChunkData(dataDeltaType);
+
+        switch (dataType) {
+            case SINGLE:
+                iff.insertChunkData(dataSingle);
+                break;
+            case WEIGHTED_LIST:
+                saveWeightedListToIff(iff);
+                break;
+            case NONE:
+                break;
+            case DIE_ROLL:
+            case RANGE:
+            default:
+                Preconditions.checkArgument(false, "saving unknown data type %s for template float param.", dataType);
+                break;
+        }
+    }
+
+    @Override
+    protected TemplateBase<Boolean, Boolean> createNewParam() {
+        return new BoolParam();
     }
 }

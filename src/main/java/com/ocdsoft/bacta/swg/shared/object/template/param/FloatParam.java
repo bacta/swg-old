@@ -1,151 +1,143 @@
 package com.ocdsoft.bacta.swg.shared.object.template.param;
 
+import bacta.iff.Iff;
+import com.google.common.base.Preconditions;
+
+import java.util.ArrayList;
+
 /**
- * Created by crush on 3/4/14.
+ * Created by crush on 11/21/2015.
  */
-public final class FloatParam extends TemplateBase<FloatParam> {
-    private float dataSingle;
-    protected byte dataDeltaType;
+public final class FloatParam extends TemplateBase<Float, Float> {
+    private byte dataDeltaType; //if '+' or '-' then param is a delta on a derived template param.
 
-    public byte getDeltaType() { return dataDeltaType; }
-
-    public float getValue() {
-        float result = 0.0f;
-
-        switch (this.dataType) {
-            case DataTypeId.Single:
-                result = getSingle();
-                break;
-            case DataTypeId.WeightedList:
-                int rand = random.nextInt(100) + 1;
-                WeightedValueList list = (WeightedValueList)this.data;
-                //TODO: Figure this out...
-                logger.debug("Attempting to get value of weighted value list, but it is currently unimplemented.");
-                break;
-            case DataTypeId.Range:
-                result = getRange();
-                break;
-            case DataTypeId.DieRoll:
-                result = getDieRoll();
-                break;
-            default:
-                logger.debug("Unknown data type <{}>.", this.dataType);
-                break;
-        }
-
-        return result;
+    public byte getDeltaType() {
+        return dataDeltaType;
     }
 
+    public void setDeltaType(final byte type) {
+        this.dataDeltaType = type;
+    }
+
+    public FloatParam() {
+        dataDeltaType = ' ';
+    }
+
+    /**
+     * Returns the minimum value that a getValue() can return. This function will fatal
+     * if the data type is a weighted list.
+     *
+     * @return the minimum getValue() return value.
+     */
     public float getMinValue() {
-        if (this.dataType == DataTypeId.Single)
-            return this.dataSingle;
-
-        if (this.dataType != DataTypeId.Range) {
-            logger.debug("getMinValue was called on non-range data type <{}>.", this.dataType);
-            return 0.0f;
-        }
-
-        return ((Range)this.data).minValue;
-    }
-
-    public float getMaxValue() {
-        if (this.dataType == DataTypeId.Single)
-            return this.dataSingle;
-
-        if (this.dataType != DataTypeId.Range) {
-            logger.debug("getMaxValue was called on non-range data type <{}>.", this.dataType);
-            return 0.0f;
-        }
-
-        return ((Range)this.data).maxValue;
-    }
-
-    public float getSingle() {
-        return dataSingle;
-    }
-
-    public float getRange() {
-        if (this.dataType != DataTypeId.Range) {
-            logger.debug("getRange was called on non-range data type <{}>.", this.dataType);
-            return 0.0f;
-        }
-
-        Range range = (Range)this.data;
-        return random.nextFloat() * (range.maxValue - range.minValue) + range.minValue;
-    }
-
-    public float getDieRoll() {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setValue(float value) {
-        cleanData();
-        this.dataSingle = value;
-        this.dataType = DataTypeId.Single;
-        this.loaded = true;
-    }
-
-    public void setValue(WeightedValueList list) {
-        cleanData();
-        this.data = list;
-        this.dataType = DataTypeId.WeightedList;
-        this.loaded = true;
-    }
-
-    public void setValue(float minValue, float maxValue) {
-        cleanData();
-        Range range = new Range();
-        range.minValue = minValue;
-        range.maxValue = maxValue;
-        this.data = range;
-        this.dataType = DataTypeId.Range;
-        this.loaded = true;
-    }
-
-    @Override
-    public FloatParam createNewParam() { return new FloatParam(); }
-
-    @Override
-    public FloatParam createDeepCopy() {
-        FloatParam param = createNewParam();
-        param.dataType = this.dataType;
-        param.dataDeltaType = this.dataDeltaType;
-        param.loaded = this.loaded;
-
-        switch (this.dataType) {
-            case DataTypeId.None:
-                break;
-            case DataTypeId.Single:
-                param.dataSingle = this.dataSingle;
-                break;
-            case DataTypeId.WeightedList:
-                WeightedValueList thisList = (WeightedValueList)data;
-                WeightedValueList thatList = new WeightedValueList(thisList.size());
-
-                for (WeightedValue weightedValue : thisList)
-                    thatList.add(new WeightedValue(weightedValue));
-
-                param.data = thatList;
-                break;
-            case DataTypeId.Range:
-                Range thisRange = (Range)this.data;
-                Range thatRange = new Range();
-                thatRange.minValue = thisRange.minValue;
-                thatRange.maxValue = thisRange.maxValue;
-                param.data = thatRange;
-                break;
-            case DataTypeId.DieRoll:
-                break;
+        switch (dataType) {
+            case SINGLE:
+                return dataSingle;
+            case RANGE:
+                Preconditions.checkNotNull(range);
+                return range.minValue;
+            case NONE:
+            case DIE_ROLL:
+            case WEIGHTED_LIST:
             default:
-                logger.debug("Attempted to create deep copy for unknown data type <{}>.", this.dataType);
+                Preconditions.checkState(false, "getting min value for FloatParam data type %s", dataType);
                 break;
         }
-
-        return param;
+        return 0.0f;
     }
 
-    private static final class Range implements DataType {
-        private float minValue;
-        private float maxValue;
+    /**
+     * Returns the maximum value that a getValue() can return. This function will fatal
+     * if the data type is a weighted list.
+     *
+     * @return the maximum getValue() return value.
+     */
+    public float getMaxValue() {
+        switch (dataType) {
+            case SINGLE:
+                return dataSingle;
+            case RANGE:
+                Preconditions.checkNotNull(range);
+                return range.maxValue;
+            case NONE:
+            case DIE_ROLL:
+            case WEIGHTED_LIST:
+            default:
+                Preconditions.checkState(false, "getting max value for FloatParam data type %s", dataType);
+                break;
+        }
+        return 0.0f;
+    }
+
+    @Override
+    public void loadFromIff(final Iff iff) {
+        final DataTypeId dataType = DataTypeId.forValue(iff.readByte());
+        dataDeltaType = iff.readByte();
+
+        switch (dataType) {
+            case SINGLE:
+                setValue(iff.readFloat());
+                loaded = true;
+            case WEIGHTED_LIST:
+                setValue(new ArrayList<>());
+                loadWeightedListFromIff(iff);
+                break;
+            case RANGE: {
+                float maxValue = iff.readFloat();
+                float minValue = iff.readFloat();
+                setValue(minValue, maxValue);
+                loaded = true;
+                break;
+            }
+            case NONE:
+                cleanData();
+                break;
+            case DIE_ROLL:
+            default:
+                Preconditions.checkArgument(false, "loaded unknown data type %s for template float param.", dataType);
+                break;
+        }
+    }
+
+    @Override
+    public void saveToIff(final Iff iff) {
+        iff.insertChunkData((byte) dataType.getValue());
+        iff.insertChunkData(dataDeltaType);
+
+        switch (dataType) {
+            case SINGLE:
+                iff.insertChunkData(dataSingle);
+                break;
+            case WEIGHTED_LIST:
+                saveWeightedListToIff(iff);
+                break;
+            case RANGE:
+                Preconditions.checkNotNull(range);
+                iff.insertChunkData(range.minValue);
+                iff.insertChunkData(range.maxValue);
+                break;
+            case NONE:
+                break;
+            case DIE_ROLL:
+            default:
+                Preconditions.checkArgument(false, "saving unknown data type %s for template float param.", dataType);
+                break;
+        }
+    }
+
+    @Override
+    protected TemplateBase<Float, Float> createNewParam() {
+        return new FloatParam();
+    }
+
+    @Override
+    protected Float getRange() {
+        Preconditions.checkState(dataType == DataTypeId.RANGE, "getRange on non-range float param.");
+        Preconditions.checkNotNull(range);
+
+        float minValue = range.minValue.floatValue();
+        float maxValue = range.maxValue.floatValue();
+
+        return random.nextFloat() * (maxValue - minValue) + minValue;
     }
 }

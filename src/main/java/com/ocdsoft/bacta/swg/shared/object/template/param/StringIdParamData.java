@@ -1,9 +1,14 @@
 package com.ocdsoft.bacta.swg.shared.object.template.param;
 
 /**
- * Created by crush on 8/15/2014.
+ * Created by crush on 11/21/2015.
  */
-public class StringIdParamData {
-    protected StringParam table = new StringParam();
-    protected StringParam index = new StringParam();
+public final class StringIdParamData {
+    public StringParam table;
+    public StringParam index;
+
+    public StringIdParamData() {
+        this.table = new StringParam();
+        this.index = new StringParam();
+    }
 }
