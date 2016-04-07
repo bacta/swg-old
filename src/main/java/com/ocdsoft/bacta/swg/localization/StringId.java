@@ -1,11 +1,15 @@
 package com.ocdsoft.bacta.swg.localization;
 
+import com.ocdsoft.bacta.engine.buffer.ByteBufferSerializable;
+import com.ocdsoft.bacta.engine.utils.BufferUtil;
 import lombok.Getter;
+
+import java.nio.ByteBuffer;
 
 /**
  * Created by crush on 11/21/2015.
  */
-public final class StringId {
+public final class StringId implements ByteBufferSerializable{
     public static final StringId Invalid = new StringId();
 
     @Getter
@@ -110,5 +114,19 @@ public final class StringId {
 
     public static StringId decodeStringId(final String string) {
         return new StringId(string);
+    }
+
+    @Override
+    public void readFromBuffer(ByteBuffer buffer) {
+        this.table = BufferUtil.getAscii(buffer);
+        this.text = BufferUtil.getAscii(buffer);
+        this.textIndex = buffer.getInt();
+    }
+
+    @Override
+    public void writeToBuffer(ByteBuffer buffer) {
+        BufferUtil.putAscii(buffer, table);
+        BufferUtil.putAscii(buffer, text);
+        buffer.putInt(textIndex);
     }
 }

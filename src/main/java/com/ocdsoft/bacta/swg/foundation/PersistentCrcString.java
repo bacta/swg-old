@@ -1,6 +1,7 @@
 package com.ocdsoft.bacta.swg.foundation;
 
 import com.google.common.base.Preconditions;
+import com.ocdsoft.bacta.engine.buffer.ByteBufferSerializable;
 
 /**
  * Created by crush on 11/22/2015.
