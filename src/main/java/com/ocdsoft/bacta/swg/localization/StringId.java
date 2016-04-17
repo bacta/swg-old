@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
  * Created by crush on 11/21/2015.
  */
 public final class StringId implements ByteBufferSerializable{
-    public static final StringId Invalid = new StringId();
+    public static final StringId INVALID = new StringId();
 
     @Getter
     private String table;

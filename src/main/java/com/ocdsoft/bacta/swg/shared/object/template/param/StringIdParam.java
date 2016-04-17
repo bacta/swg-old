@@ -33,8 +33,8 @@ public class StringIdParam extends TemplateBase<StringIdParamData, StringIdParam
             Preconditions.checkState(false, "Weighted list does not equal 100.");
         }
 
-        Preconditions.checkState(false, "Invalid type for string id param.");
-        return StringId.Invalid;
+        Preconditions.checkState(false, "INVALID type for string id param.");
+        return StringId.INVALID;
     }
 
     @Override

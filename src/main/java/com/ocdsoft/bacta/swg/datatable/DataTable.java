@@ -50,7 +50,7 @@ public final class DataTable {
      * @throws ArrayIndexOutOfBoundsException If the column index is outside the bounds of the columns list.
      */
     public String getColumnName(int column) {
-        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable[%s]: Invalid col number [%s]. Cols=[%s]", this.name, column, getNumColumns());
+        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable[%s]: INVALID col number [%s]. Cols=[%s]", this.name, column, getNumColumns());
 
         return this.columns.get(column);
     }
@@ -102,7 +102,7 @@ public final class DataTable {
      *                                        IllegalArgumentException If the column index is out of bounds.
      */
     public DataTableColumnType getDataTypeForColumn(int column) {
-        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable[%s]: Invalid col number [%s]. Cols=[%s]", this.name, column, getNumColumns());
+        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable[%s]: INVALID col number [%s]. Cols=[%s]", this.name, column, getNumColumns());
 
         return this.types.get(column);
     }
@@ -115,8 +115,8 @@ public final class DataTable {
     }
 
     public int getIntValue(int column, int row) {
-        Preconditions.checkArgument(row >= 0 && row < getNumRows(), "DataTable[%s]: Invalid row number [%s]. Rows=[%s]", this.name, row, getNumRows());
-        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable[%s]: Invalid col number [%s]. Cols=[%s]", this.name, row, getNumColumns());
+        Preconditions.checkArgument(row >= 0 && row < getNumRows(), "DataTable[%s]: INVALID row number [%s]. Rows=[%s]", this.name, row, getNumRows());
+        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable[%s]: INVALID col number [%s]. Cols=[%s]", this.name, row, getNumColumns());
 
         final DataTableColumnType.DataType basicType = types.get(column).getBasicType();
 
@@ -142,7 +142,7 @@ public final class DataTable {
 
     public int getIntDefaultForColumn(final String column) {
         final int columnIndex = findColumnNumber(column);
-        Preconditions.checkArgument(columnIndex >= 0 && columnIndex < getNumColumns(), "DataTable[%s}: Invalid col number [%s]. Cols=[%s]", this.name, columnIndex, getNumColumns());
+        Preconditions.checkArgument(columnIndex >= 0 && columnIndex < getNumColumns(), "DataTable[%s}: INVALID col number [%s]. Cols=[%s]", this.name, columnIndex, getNumColumns());
 
         return getIntDefaultForColumn(columnIndex);
     }
@@ -154,7 +154,7 @@ public final class DataTable {
      * @return The default value for the given column.
      */
     public int getIntDefaultForColumn(int column) {
-        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable[%s]: Invalid col number [%s].  Cols=[%s]", this.name, column, getNumColumns());
+        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable[%s]: INVALID col number [%s].  Cols=[%s]", this.name, column, getNumColumns());
         Preconditions.checkArgument(types.get(column).getBasicType() == DataTableColumnType.DataType.Int, "Wrong data type for column %s.", column);
 
         return Integer.parseInt(getDataTypeForColumn(column).mangleValue());
@@ -168,8 +168,8 @@ public final class DataTable {
     }
 
     public float getFloatValue(int column, int row) {
-        Preconditions.checkArgument(row >= 0 && row < getNumRows(), "DataTable[%s]: Invalid row number [%s]. Rows=[%s]", this.name, row, getNumRows());
-        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable[%s]: Invalid col number [%s]. Cols=[%s]", this.name, row, getNumColumns());
+        Preconditions.checkArgument(row >= 0 && row < getNumRows(), "DataTable[%s]: INVALID row number [%s]. Rows=[%s]", this.name, row, getNumRows());
+        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable[%s]: INVALID col number [%s]. Cols=[%s]", this.name, row, getNumColumns());
         Preconditions.checkArgument(types.get(column).getBasicType() == DataTableColumnType.DataType.Float, "Wrong data type for column %s.", column);
 
         final DataTableCell cell = getDataTableCell(column, row);
@@ -187,7 +187,7 @@ public final class DataTable {
     }
 
     public float getFloatDefaultForColumn(int column) {
-        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable[%s]: Invalid col number [%s]. Cols=[%s]", this.name, column, getNumColumns());
+        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable[%s]: INVALID col number [%s]. Cols=[%s]", this.name, column, getNumColumns());
         Preconditions.checkArgument(types.get(column).getBasicType() == DataTableColumnType.DataType.Float, "Wrong data type for column %s.", column);
 
         return Float.parseFloat(getDataTypeForColumn(column).mangleValue());
@@ -227,7 +227,7 @@ public final class DataTable {
     }
 
     public String getStringDefaultForColumn(int column) {
-        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable [%s]: Invalid col number [%s]. Cols=[%s]", this.name, column, getNumColumns());
+        Preconditions.checkArgument(column >= 0 && column < getNumColumns(), "DataTable [%s]: INVALID col number [%s]. Cols=[%s]", this.name, column, getNumColumns());
         Preconditions.checkArgument(types.get(column).getBasicType() == DataTableColumnType.DataType.String, "Wrong data type for column %s.", column);
 
         return getDataTypeForColumn(column).mangleValue();

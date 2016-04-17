@@ -164,7 +164,7 @@ public class SharedObjectTemplate extends ObjectTemplate {
         } else if (baseData != null && baseData instanceof SharedObjectTemplate) {
             return ((SharedObjectTemplate) baseData).getObjectName();
         } else {
-            return StringId.Invalid;
+            return StringId.INVALID;
         }
     }
 
@@ -174,7 +174,7 @@ public class SharedObjectTemplate extends ObjectTemplate {
         } else if (baseData != null && baseData instanceof SharedObjectTemplate) {
             return ((SharedObjectTemplate) baseData).getDetailedDescription();
         } else {
-            return StringId.Invalid;
+            return StringId.INVALID;
         }
     }
 
@@ -184,7 +184,7 @@ public class SharedObjectTemplate extends ObjectTemplate {
         } else if (baseData != null && baseData instanceof SharedObjectTemplate) {
             return ((SharedObjectTemplate) baseData).getLookAtText();
         } else {
-            return StringId.Invalid;
+            return StringId.INVALID;
         }
     }
 
