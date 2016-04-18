@@ -25,7 +25,7 @@ public class SlotIdManager {
         }
     };
 
-    private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
+    private final static Logger LOGGER = LoggerFactory.getLogger(SlotIdManager.class);
 
     private final List<Slot> slots = new ArrayList<>();
     private final List<String> slotsThatHoldAnything = new ArrayList<>();
@@ -43,10 +43,10 @@ public class SlotIdManager {
     public static final boolean isInvalidSlot(int slotId) { return slotId == InvalidSlot; }
 
     public void load(final String definitionsFile) {
-        logger.trace("Loading slots from slot definitions file <{}>.", definitionsFile);
+        LOGGER.trace("Loading slots from slot definitions file <{}>.", definitionsFile);
 
         if (!treeFile.exists(definitionsFile)) {
-            logger.warn("Cannot load slot definitions because the file <{}> could not be found.", definitionsFile);
+            LOGGER.warn("Cannot load slot definitions because the file <{}> could not be found.", definitionsFile);
         } else {
 //            ChunkReader chunkReader = new ChunkReader(definitionsFile, treeFile.open(definitionsFile));
 //            chunkReader.nextChunk(); //0006
