@@ -1,6 +1,6 @@
 package com.ocdsoft.bacta.swg.data;
 
-import com.ocdsoft.bacta.swg.shared.object.template.ObjectTemplate;
+import com.ocdsoft.bacta.swg.template.ObjectTemplate;
 
 import java.util.function.Function;
 
