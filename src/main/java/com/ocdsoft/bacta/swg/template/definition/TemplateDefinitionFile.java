@@ -2,7 +2,7 @@ package com.ocdsoft.bacta.swg.template.definition;
 
 import com.google.common.io.Files;
 import com.ocdsoft.bacta.engine.utils.StringUtil;
-import com.ocdsoft.bacta.swg.foundation.Tag;
+import com.ocdsoft.bacta.swg.shared.foundation.Tag;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import lombok.Getter;

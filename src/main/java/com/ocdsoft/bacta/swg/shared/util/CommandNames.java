@@ -25,7 +25,7 @@ public class CommandNames {
 
 	public static String get(String propertyName) {
 		if(!prop.containsKey(propertyName.toUpperCase()))
-			return "Unknown";
+			return "UNKNOWN";
 		
 		return prop.getProperty(propertyName.toUpperCase());
 	}

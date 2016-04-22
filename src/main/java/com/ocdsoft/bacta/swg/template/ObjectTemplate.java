@@ -1,7 +1,7 @@
 package com.ocdsoft.bacta.swg.template;
 
 import bacta.iff.Iff;
-import com.ocdsoft.bacta.swg.foundation.DataResource;
+import com.ocdsoft.bacta.swg.shared.foundation.DataResource;
 
 /**
  * Created by crush on 4/19/2016.

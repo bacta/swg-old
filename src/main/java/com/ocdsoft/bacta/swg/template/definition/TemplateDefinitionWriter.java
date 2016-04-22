@@ -1,7 +1,7 @@
 package com.ocdsoft.bacta.swg.template.definition;
 
 import com.ocdsoft.bacta.engine.utils.StringUtil;
-import com.ocdsoft.bacta.swg.foundation.Tag;
+import com.ocdsoft.bacta.swg.shared.foundation.Tag;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -653,7 +653,7 @@ public class TemplateDefinitionWriter {
             printStream.printf("%s\t\tpublic static %s from(final long value) {\n", tabs, enumName);
             printStream.printf("%s\t\t\tfor (final %s e : values)\n", tabs, enumName);
             printStream.printf("%s\t\t\t\tif (e.value == value) return e;\n", tabs);
-            printStream.printf("%s\t\t\tthrow new IllegalArgumentException(String.format(\"Unknown value %%d for enum %s\", value));\n", tabs, enumName);
+            printStream.printf("%s\t\t\tthrow new IllegalArgumentException(String.format(\"UNKNOWN value %%d for enum %s\", value));\n", tabs, enumName);
             printStream.printf("%s\t\t}\n", tabs);
 
             //Closing for enum.
@@ -794,7 +794,7 @@ public class TemplateDefinitionWriter {
             "lombok.Getter",
             "bacta.iff.Iff",
             "com.google.common.base.Preconditions",
-            "com.ocdsoft.bacta.swg.foundation.Tag",
+            "com.ocdsoft.bacta.swg.shared.foundation.Tag",
             "com.ocdsoft.bacta.swg.localization.StringId",
             "com.ocdsoft.bacta.swg.template.ObjectTemplate",
             "com.ocdsoft.bacta.swg.template.ObjectTemplateList",

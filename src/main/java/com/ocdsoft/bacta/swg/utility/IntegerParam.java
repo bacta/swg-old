@@ -2,7 +2,7 @@ package com.ocdsoft.bacta.swg.utility;
 
 import bacta.iff.Iff;
 import com.google.common.base.Preconditions;
-import com.ocdsoft.bacta.swg.foundation.DataResourceList;
+import com.ocdsoft.bacta.swg.shared.foundation.DataResourceList;
 import com.ocdsoft.bacta.swg.template.ObjectTemplate;
 
 /**

@@ -3,38 +3,43 @@ package com.ocdsoft.bacta.swg.shared.container;
 /**
  * Created by crush on 8/26/2014.
  */
-public final class ContainerErrorCode {
-    public static final int Success = 0x0;
-    public static final int Unknown = 0x1;
-    public static final int AddSelf = 0x2;
-    public static final int Full = 0x3;
-    public static final int SlotOccupied = 0x4;
-    public static final int NoSlot = 0x5;
-    public static final int InvalidArrangement = 0x6;
-    public static final int WrongType = 0x7;
-    public static final int NoPermission = 0x8;
-    public static final int OutOfRange = 0x9;
-    public static final int NotFound = 0xA;
-    public static final int AlreadyIn = 0xB;
-    public static final int TooLarge = 0xC;
-    public static final int HouseItemLimit = 0xD;
-    public static final int TooDeep = 0xE;
-    public static final int TryAgain = 0xF;
-    public static final int UnmovableType = 0x10;
-    public static final int Unmovable = 0x11;
-    public static final int CantSee = 0x12;
-    public static final int InventoryFull = 0x13;
-    public static final int TradeEquipped = 0x14;
-    public static final int HopperNotEmpty = 0x15;
-    public static final int VirtualContainerUnreachable = 0x16;
-    public static final int VirtualContainerUserUnreachable = 0x17;
-    public static final int VirtualContainerUserInvalid = 0x18;
-    public static final int BlockedByScript = 0x19;
-    public static final int BlockedByItemBeingTransferred = 0x1A;
-    public static final int BlockedBySourceContainer = 0x1B;
-    public static final int BlockedByDestinationContainer = 0x1C;
-    public static final int NoContainer = 0x1D;
-    public static final int SilentError = 0x1E;
-    public static final int BioLinkedToOtherPlayer = 0x1F;
-    public static final int Last = 0x20;
+public enum ContainerErrorCode {
+    SUCCESS(0x0),
+    UNKNOWN(0x1),
+    ADD_SELF(0x2),
+    FULL(0x3),
+    SLOT_OCCUPIED(0x4),
+    NO_SLOT(0x5),
+    INVALID_ARRANGEMENT(0x6),
+    WRONG_TYPE(0x7),
+    NO_PERMISSION(0x8),
+    OUT_OF_RANGE(0x9),
+    NOT_FOUND(0xA),
+    ALREADY_IN(0xB),
+    TOO_LARGE(0xC),
+    HOUSE_ITEM_LIMIT(0xD),
+    TOO_DEEP(0xE),
+    TRY_AGAIN(0xF),
+    UNMOVABLE_TYPE(0x10),
+    UNMOVABLE(0x11),
+    CANT_SEE(0x12),
+    INVENTORY_FULL(0x13),
+    TRADE_EQUIPPED(0x14),
+    HOPPER_NOT_EMPTY(0x15),
+    VIRTUAL_CONTAINER_UNREACHABLE(0x16),
+    VIRTUAL_CONTAINER_USER_UNREACHABLE(0x17),
+    VIRTUAL_CONTAINER_USER_INVALID(0x18),
+    BLOCKED_BY_SCRIPT(0x19),
+    BLOCKED_BY_ITEM_BEING_TRANSFERRED(0x1A),
+    BLOCKED_BY_SOURCE_CONTAINER(0x1B),
+    BLOCKED_BY_DESTINATION_CONTAINER(0x1C),
+    NO_CONTAINER(0x1D),
+    SILENT_ERROR(0x1E),
+    BIO_LINKED_TO_OTHER_PLAYER(0x1F);
+
+    private final int value;
+
+    ContainerErrorCode(final int value) {
+        this.value = value;
+    }
 }
