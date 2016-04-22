@@ -52,7 +52,7 @@ public abstract class ObjectTemplate extends DataResource {
      * @return True if this template derives from the ancestor; otherwise false.
      */
     public boolean derivesFrom(final String potentialAncestorName) {
-        if (getName().equalsIgnoreCase(potentialAncestorName))
+        if (getResourceName().equalsIgnoreCase(potentialAncestorName))
             return true;
 
         if (baseData != null)

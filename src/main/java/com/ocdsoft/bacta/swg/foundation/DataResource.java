@@ -14,11 +14,9 @@ public abstract class DataResource {
         this.name = new PersistentCrcString(fileName, true);
     }
 
-    //NOTE: This clashes with some of the templates properties...
-    //if we need this in the future, we will need to name it something else.
-    //public String getName() {
-    //return name.getString();
-    //}
+    public String getResourceName() {
+        return name.getString();
+    }
 
     public CrcString getCrcName() {
         return name;

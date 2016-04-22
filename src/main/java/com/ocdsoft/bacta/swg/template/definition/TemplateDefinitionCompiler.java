@@ -11,12 +11,12 @@ import java.nio.file.Paths;
  * Created by crush on 4/18/2016.
  */
 public class TemplateDefinitionCompiler {
-    public void compile(final File sourceDirectory, final File destinationDirectory) throws IOException {
+    public void compile(final File sourceDirectory, final File destinationDirectory, final String templatePackage) throws IOException {
         final File[] files = sourceDirectory.listFiles((dir, name) -> {
             return name.endsWith(".tdf");
         });
 
-        final TemplateDefinitionWriter writer = new TemplateDefinitionWriter("com.ocdsoft.bacta.swg.precu.object.template");
+        final TemplateDefinitionWriter writer = new TemplateDefinitionWriter(templatePackage);
         final String destinationPath = destinationDirectory.getAbsolutePath();
 
         Files.walk(Paths.get(sourceDirectory.getAbsolutePath()))
