@@ -1,6 +1,6 @@
 package com.ocdsoft.bacta.swg.template.definition;
 
-import com.ocdsoft.bacta.swg.foundation.Tag;
+import com.ocdsoft.bacta.swg.shared.foundation.Tag;
 
 /**
  * Created by crush on 4/19/2016.

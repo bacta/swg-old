@@ -350,7 +350,7 @@ public final class DataTable {
         } else if (version == DataTable.ID_0001) {
             load0001(iff, dataTableManager);
         } else {
-            Preconditions.checkArgument(false, "Unknown DataTable file format [%s].", Iff.getChunkName(version));
+            Preconditions.checkArgument(false, "UNKNOWN DataTable file format [%s].", Iff.getChunkName(version));
         }
 
         iff.exitForm(DataTable.ID_DTII);
@@ -434,7 +434,7 @@ public final class DataTable {
                     break;
                 }
                 default: {
-                    Preconditions.checkArgument(false, "Unknown column type loaded from version 0000.");
+                    Preconditions.checkArgument(false, "UNKNOWN column type loaded from version 0000.");
                 }
             }
         }

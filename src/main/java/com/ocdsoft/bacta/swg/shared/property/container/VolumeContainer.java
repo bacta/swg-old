@@ -1,7 +1,7 @@
 package com.ocdsoft.bacta.swg.shared.property.container;
 
-import com.ocdsoft.bacta.swg.shared.property.Container;
+import com.ocdsoft.bacta.swg.shared.property.Property;
 
-public class VolumeContainer extends Container {
+public class VolumeContainer extends Property {
 
 }

@@ -30,7 +30,7 @@ public class DynamicVariableParamData {
                     return dataType;
             }
 
-            throw new IllegalStateException("Unknown data type.");
+            throw new IllegalStateException("UNKNOWN data type.");
         }
     }
 }
