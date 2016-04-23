@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -49,6 +50,24 @@ public abstract class Container extends Property {
     @Override
     public void conclude() {
 
+    }
+
+    /**
+     * DO NOT CALL DIRECTLY. Public out of necessity.
+     */
+    public int depersistContents(final GameObject item) {
+        return insertNewItem(item);
+    }
+
+    /**
+     * DO NOT CALL DIRECTLY. Public out of necessity.
+     */
+    public boolean internalItemRemoved(final GameObject item) {
+        return internalRemoveItem(item);
+    }
+
+    public Iterator<GameObject> iterator() {
+        return contents.iterator();
     }
 
     public int getNumberOfItems() {

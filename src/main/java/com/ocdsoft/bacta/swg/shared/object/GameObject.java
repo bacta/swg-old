@@ -1,12 +1,14 @@
 package com.ocdsoft.bacta.swg.shared.object;
 
 import com.ocdsoft.bacta.engine.object.NetworkObject;
-import com.ocdsoft.bacta.soe.object.Transform;
 import com.ocdsoft.bacta.swg.shared.collision.CollisionProperty;
 import com.ocdsoft.bacta.swg.shared.container.ContainedByProperty;
 import com.ocdsoft.bacta.swg.shared.container.Container;
+import com.ocdsoft.bacta.swg.shared.container.SlottedContainer;
+import com.ocdsoft.bacta.swg.shared.container.VolumeContainer;
 import com.ocdsoft.bacta.swg.shared.property.Property;
-import com.ocdsoft.bacta.swg.template.ObjectTemplate;
+import com.ocdsoft.bacta.swg.shared.template.ObjectTemplate;
+import com.ocdsoft.bacta.swg.shared.utility.Transform;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -145,6 +147,66 @@ public abstract class GameObject extends NetworkObject {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public <PropertyType extends Property> PropertyType getProperty(final int propertyId) {
+        for (final Property property : propertyList) {
+            if (property.getPropertyId() == propertyId)
+                return (PropertyType) property;
+        }
+
+        return null;
+    }
+
     public void removeFromWorld() {
+    }
+
+    public SlottedContainer getSlottedContainerProperty() {
+        final Container container = getContainerProperty();
+
+        if (container != null && container.getPropertyId() == SlottedContainer.getClassPropertyId())
+            return (SlottedContainer) container;
+
+        return null;
+    }
+
+    public VolumeContainer getVolumeContainerProperty() {
+        final Container container = getContainerProperty();
+
+        if (container != null && container.getPropertyId() == VolumeContainer.getClassPropertyId())
+            return (VolumeContainer) container;
+
+        return null;
+    }
+
+    /**
+     * Called after the specified object has its containedByProperty changed
+     * <p>
+     * This default implementation does nothing.
+     * <p>
+     * Each object is assumed to have no more than one container associated
+     * with it; therefore, it is unambiguous which container is under
+     * consideration for this object.
+     *
+     * @param oldValue The container that used to hold this object
+     * @param newValue The container that now holds this object.
+     */
+    public void containedByModified(final GameObject oldValue, final GameObject newValue, boolean isLocal) {
+
+    }
+
+    /**
+     * Called after the specified object has its slotted arrangement changed
+     * <p>
+     * This default implementation does nothing.
+     * <p>
+     * Each object is assumed to have no more than one container associated
+     * with it; therefore, it is unambiguous which container is under
+     * consideration for this object.
+     *
+     * @param oldValue The old arrangement
+     * @param newValue The new arrangement
+     */
+    public void arrangementModified(final int oldValue, final int newValue, boolean isLocal) {
+
     }
 }

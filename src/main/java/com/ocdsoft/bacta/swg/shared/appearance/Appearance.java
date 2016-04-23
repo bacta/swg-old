@@ -1,7 +1,8 @@
 package com.ocdsoft.bacta.swg.shared.appearance;
 
-import com.ocdsoft.bacta.soe.object.Transform;
+
 import com.ocdsoft.bacta.swg.shared.object.GameObject;
+import com.ocdsoft.bacta.swg.shared.utility.Transform;
 
 /**
  * Created by crush on 4/22/2016.

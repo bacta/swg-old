@@ -27,7 +27,7 @@ public class PersistentCrcString extends CrcString {
 
     @Override
     public void clear() {
-        crc = Crc.Null;
+        crc = Crc.NULL;
     }
 
     @Override

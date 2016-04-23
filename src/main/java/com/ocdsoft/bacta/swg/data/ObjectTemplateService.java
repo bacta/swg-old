@@ -1,6 +1,7 @@
 package com.ocdsoft.bacta.swg.data;
 
-import com.ocdsoft.bacta.swg.template.ObjectTemplate;
+import com.ocdsoft.bacta.swg.lang.NotImplementedException;
+import com.ocdsoft.bacta.swg.shared.template.ObjectTemplate;
 
 import java.util.function.Function;
 
@@ -15,7 +16,7 @@ public interface ObjectTemplateService<Type>  {
      *
      * @param template template to get class object for
      * @return Class object related to the specified type
-     * @throws com.ocdsoft.bacta.swg.shared.lang.NotImplementedException when chunk type is not mapped to a class
+     * @throws NotImplementedException when chunk type is not mapped to a class
      */
     <T extends Type> Class<T> getClassForTemplate(ObjectTemplate template);
 
