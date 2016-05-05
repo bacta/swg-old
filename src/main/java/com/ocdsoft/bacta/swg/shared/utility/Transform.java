@@ -1,9 +1,10 @@
 package com.ocdsoft.bacta.swg.shared.utility;
 
-import com.ocdsoft.bacta.engine.buffer.ByteBufferSerializable;
+import com.ocdsoft.bacta.engine.buffer.ByteBufferWritable;
 import com.ocdsoft.bacta.engine.utils.BufferUtil;
 import com.ocdsoft.bacta.swg.shared.math.Vector;
 import lombok.Data;
+import lombok.Getter;
 import org.magnos.steer.vec.Vec3;
 
 import javax.vecmath.Quat4f;
@@ -12,16 +13,18 @@ import java.nio.ByteBuffer;
 /**
  * Created by kyle on 4/7/2016.
  */
-@Data
-public class Transform extends Vector implements ByteBufferSerializable{
+public class Transform extends Vector implements ByteBufferWritable {
 
-    private Quat4f orientation;
+    @Getter
+    private final Quat4f orientation;
 
     public Transform() {
+        super(0, 0, 0);
         this.orientation = new Quat4f();
     }
 
     public Transform(Quat4f orientation) {
+        super(0, 0, 0);
         this.orientation = orientation;
     }
 
@@ -35,22 +38,14 @@ public class Transform extends Vector implements ByteBufferSerializable{
         this.orientation = orientation;
     }
 
-    @Override
-    public void readFromBuffer(ByteBuffer buffer) {
+    public Transform(final ByteBuffer buffer) {
+        super(buffer);
         orientation = BufferUtil.getQuat4f(buffer);
-        super.readFromBuffer(buffer);
     }
 
     @Override
     public void writeToBuffer(ByteBuffer buffer) {
         BufferUtil.putQuat4f(buffer, orientation);
         super.writeToBuffer(buffer);
-    }
-
-    public void setOrientation(float x, float y, float z, float w) {
-        this.orientation.x = x;
-        this.orientation.y = y;
-        this.orientation.z = z;
-        this.orientation.w = w;
     }
 }

@@ -75,6 +75,7 @@ public class ByteAppender {
             }
         });
 
+        // TODO: How will this work when unicode string goes
         appenders.put(UnicodeString.class, new TypeAppender<UnicodeString>() {
             @Override
             public void append(UnicodeString value, ByteBuffer buffer) {
