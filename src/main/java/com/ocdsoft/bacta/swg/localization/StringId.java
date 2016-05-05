@@ -123,7 +123,7 @@ public final class StringId implements ByteBufferWritable {
     @Override
     public void writeToBuffer(ByteBuffer buffer) {
         BufferUtil.putAscii(buffer, table);
-        BufferUtil.putAscii(buffer, text);
         buffer.putInt(textIndex);
+        BufferUtil.putAscii(buffer, text);
     }
 }
