@@ -1,5 +1,7 @@
 package com.ocdsoft.bacta.swg.shared.foundation;
 
+import com.ocdsoft.bacta.soe.util.SOECRC32;
+
 /**
  * Created by crush on 11/22/2015.
  */
@@ -13,7 +15,30 @@ public abstract class CrcString implements Comparable<CrcString> {
      * slashes will be converted into a single slash.
      */
     public static String normalize(final String input) {
-        return "";
+        boolean previousIsSlash = true;
+        StringBuilder output = new StringBuilder();
+
+        for (int i = 0; i < input.length(); ++i) {
+
+            final char c = input.charAt(i);
+
+            if (c == '\\' || c == '/') {
+                if (!previousIsSlash) {
+                    // convert all backslashes to forward slashes and disallow multiple slashes in a row
+                    output.append('/');
+                    previousIsSlash = true;
+                }
+            } else if (c == '.') {
+                // disallow dots after slashes.  this will also handle multiple dots, and slashes following the dots
+                if (!previousIsSlash)
+                    output.append('.');
+            } else {
+                // lowercase all other characters
+                output.append(c);
+                previousIsSlash = false;
+            }
+        }
+        return output.toString().toLowerCase();
     }
 
     protected int crc;
@@ -39,9 +64,11 @@ public abstract class CrcString implements Comparable<CrcString> {
     }
 
     protected CrcString(int crc) {
+        this.crc = crc;
     }
 
     protected void calculateCrc() {
+        this.crc = SOECRC32.hashCode(getString());
     }
 
     @Override

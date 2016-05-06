@@ -99,7 +99,7 @@ public class CrcStringTable {
                 for (int i = 0; i < numberOfEntries; ++i)
                     iff.readInt();
             }
-            iff.exitChunk(TAG_STNG);
+            iff.exitChunk(TAG_STRT);
 
             iff.enterChunk(TAG_STNG);
             {

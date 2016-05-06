@@ -192,7 +192,8 @@ public class SlotIdManager {
     }
 
     private void load0006(final Iff iff, boolean loadHardpoitnNameData) {
-        iff.enterChunk(TAG_0006);
+
+        iff.enterForm(TAG_0006);
         {
             iff.enterChunk(TAG_DATA);
             {
