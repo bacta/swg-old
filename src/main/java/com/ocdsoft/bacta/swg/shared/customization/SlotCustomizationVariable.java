@@ -1,4 +1,4 @@
-package com.ocdsoft.bacta.swg.shared.object.customization;
+package com.ocdsoft.bacta.swg.shared.customization;
 
 /**
  * Created by crush on 3/31/14.

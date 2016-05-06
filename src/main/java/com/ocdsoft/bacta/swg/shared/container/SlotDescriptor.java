@@ -57,12 +57,11 @@ public class SlotDescriptor {
         ++referenceCount;
     }
 
-    public void release() {
+    public void release(final SlotDescriptorList slotDescriptorList) {
         --referenceCount;
 
-        if (referenceCount < 1) {
-            //slotDescriptorList.stopTracking(this);
-        }
+        if (referenceCount < 1)
+            slotDescriptorList.stopTracking(this);
     }
 
     private void load0000(final SlotIdManager slotIdManager, final Iff iff) {

@@ -2,6 +2,7 @@ package com.ocdsoft.bacta.swg.shared.utility;
 
 import bacta.iff.Iff;
 import com.ocdsoft.bacta.swg.shared.foundation.CrcString;
+import com.ocdsoft.bacta.swg.shared.math.Transform;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.TLongObjectMap;
 import gnu.trove.map.hash.TIntIntHashMap;

@@ -6,6 +6,7 @@ import com.google.common.base.Preconditions;
  * Created by crush on 11/22/2015.
  */
 public class PersistentCrcString extends CrcString {
+    public static final PersistentCrcString EMPTY = new PersistentCrcString("", true);
 
     private String string;
 

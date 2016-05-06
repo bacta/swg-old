@@ -2,15 +2,16 @@ package com.ocdsoft.bacta.swg.shared.template;
 
 import bacta.iff.Iff;
 import com.ocdsoft.bacta.swg.shared.foundation.DataResource;
+import com.ocdsoft.bacta.swg.shared.foundation.DataResourceList;
 
 /**
  * Created by crush on 4/19/2016.
  */
 public abstract class ObjectTemplate extends DataResource {
-    protected final ObjectTemplateList objectTemplateList;
+    protected final DataResourceList<ObjectTemplate> objectTemplateList;
     protected ObjectTemplate baseData;
 
-    public ObjectTemplate(final String filename, final ObjectTemplateList objectTemplateList) {
+    public ObjectTemplate(final String filename, final DataResourceList<ObjectTemplate> objectTemplateList) {
         super(filename);
         this.objectTemplateList = objectTemplateList;
     }

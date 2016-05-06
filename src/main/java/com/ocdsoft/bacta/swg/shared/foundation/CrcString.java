@@ -3,7 +3,7 @@ package com.ocdsoft.bacta.swg.shared.foundation;
 /**
  * Created by crush on 11/22/2015.
  */
-public abstract class CrcString {
+public abstract class CrcString implements Comparable<CrcString> {
     /**
      * Normalize a string.
      * <p>
@@ -44,4 +44,8 @@ public abstract class CrcString {
     protected void calculateCrc() {
     }
 
+    @Override
+    public int compareTo(final CrcString o) {
+        return Integer.compare(crc, o.crc);
+    }
 }

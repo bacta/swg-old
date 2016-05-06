@@ -1,4 +1,4 @@
-package com.ocdsoft.bacta.swg.shared.object.customization;
+package com.ocdsoft.bacta.swg.shared.customization;
 
 import lombok.Getter;
 import org.slf4j.Logger;

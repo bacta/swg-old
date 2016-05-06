@@ -17,6 +17,6 @@ public class MovementTable {
         protected float canSeeHeightMod;
     }
 
-    protected TByteObjectMap<Rates> postures = new TByteObjectHashMap<>();
+    protected final TByteObjectMap<Rates> postures = new TByteObjectHashMap<>();
     protected byte[] locomotionPostures;
 }

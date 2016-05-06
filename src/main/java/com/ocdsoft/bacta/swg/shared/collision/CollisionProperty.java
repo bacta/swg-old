@@ -1,8 +1,8 @@
 package com.ocdsoft.bacta.swg.shared.collision;
 
+import com.ocdsoft.bacta.swg.shared.math.Transform;
 import com.ocdsoft.bacta.swg.shared.object.GameObject;
 import com.ocdsoft.bacta.swg.shared.property.Property;
-import com.ocdsoft.bacta.swg.shared.utility.Transform;
 
 public class CollisionProperty extends Property {
     public static int getClassPropertyId() {

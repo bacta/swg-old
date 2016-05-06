@@ -81,16 +81,24 @@ public class TemplateDefinitionWriter {
 
         final String access = templateData.templateParent == null ? "public" : "protected static";
 
+        //Demarcate the top level class with an annotation.
+        if (templateData.fileParent != null)
+            printStream.println("@TemplateDefinition");
+
         printStream.printf("%s%s class %s extends %s {\n", tabs, access, name, baseName);
     }
 
     private void printTemplateTag(final PrintStream printStream, final TemplateData templateData) {
         final String tabs = getTabString(templateData);
 
-        printStream.printf("%s\tprivate static final int TAG_%s = Tag.convertStringToTag(\"%s\");\n",
+        final TagInfo tagInfo = templateData.fileParent != null
+                ? templateData.fileParent.getTemplateId()
+                : templateData.getStructId();
+
+        printStream.printf("%s\tpublic static final int TAG_%s = Tag.convertStringToTag(\"%s\");\n",
                 tabs,
                 templateData.getName().toUpperCase(),
-                Tag.convertTagToString(templateData.getStructId().tag));
+                Tag.convertTagToString(tagInfo.tag));
         printStream.println();
     }
 
@@ -196,7 +204,7 @@ public class TemplateDefinitionWriter {
                 ? templateData.getName()
                 : templateData.getName() + "ObjectTemplate";
 
-        printStream.printf("%s\tpublic %s(final String filename, final ObjectTemplateList objectTemplateList) {\n",
+        printStream.printf("%s\tpublic %s(final String filename, final DataResourceList<ObjectTemplate> objectTemplateList) {\n",
                 tabs, name);
         printStream.printf("%s\t\tsuper(filename, objectTemplateList);\n", tabs);
         printStream.printf("%s\t}\n", tabs);
@@ -795,9 +803,10 @@ public class TemplateDefinitionWriter {
             "bacta.iff.Iff",
             "com.google.common.base.Preconditions",
             "com.ocdsoft.bacta.swg.shared.foundation.Tag",
+            "com.ocdsoft.bacta.swg.shared.foundation.DataResourceList",
             "com.ocdsoft.bacta.swg.localization.StringId",
             "com.ocdsoft.bacta.swg.shared.template.ObjectTemplate",
-            "com.ocdsoft.bacta.swg.shared.template.ObjectTemplateList",
+            "com.ocdsoft.bacta.swg.shared.template.definition.TemplateDefinition",
             "com.ocdsoft.bacta.swg.shared.utility.BoolParam",
             "com.ocdsoft.bacta.swg.shared.utility.FloatParam",
             "com.ocdsoft.bacta.swg.shared.utility.StringParam",
