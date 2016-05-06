@@ -589,7 +589,7 @@ public class TemplateDefinitionWriter {
     private void printParameterLoad(final PrintStream printStream, final String tabs, final Parameter parameter) {
         final String dataVariableName = dataVariableNames[parameter.type.ordinal()];
 
-        printStream.printf("if (\"%s\".equalsIgnoreCase(parameterName)) {\n", tabs, parameter.name);
+        printStream.printf("if (\"%s\".equalsIgnoreCase(parameterName)) {\n", parameter.name);
 
         switch (parameter.listType) {
             case NONE:
