@@ -18,6 +18,10 @@ public abstract class TemplateBase<DataType, ReturnType> {
     protected TemplateBaseData data; //storage for complex-type data
     protected boolean loaded; //flag that parameter has been loaded
 
+    public TemplateBase() {
+        dataType = DataTypeId.NONE;
+    }
+
     /**
      * Does cleanup for a single-value parameter.
      */
@@ -129,7 +133,6 @@ public abstract class TemplateBase<DataType, ReturnType> {
                 data = null;
                 break;
         }
-
         dataType = DataTypeId.NONE;
         loaded = false;
     }
