@@ -36,7 +36,7 @@ public final class DataTableManager {
     }
 
     public DataTable getTable(final String table) {
-        return getTable(table, false);
+        return getTable(table, true);
     }
 
     public DataTable getTable(final String table, boolean openIfNotFound) {
