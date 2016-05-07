@@ -519,8 +519,16 @@ public class TemplateDefinitionWriter {
         printStream.printf("%s\tprotected void load(final Iff iff) {\n", tabs);
 
         if (templateData.fileParent != null) {
-            printStream.printf("%s\t\tif (iff.getCurrentName() != TAG_%s)\n", tabs, templateData.getName().toUpperCase());
+            printStream.printf("%s\t\tif (iff.getCurrentName() != TAG_%s) {\n", tabs, templateData.getName().toUpperCase());
+
+            final String baseName = templateData.getBaseName();
+
+            if (baseName != null && !baseName.isEmpty() && !TemplateUtil.ROOT_TEMPLATE_NAME.equals(baseName)) {
+                printStream.printf("%s\t\t\tsuper.load(iff);\n", tabs);
+            }
+
             printStream.printf("%s\t\t\treturn;\n", tabs);
+            printStream.printf("%s\t\t}\n", tabs);
             printStream.println();
             printStream.printf("%s\t\tiff.enterForm();\n", tabs);
             printStream.printf("%s\t\ttemplateVersion = iff.getCurrentName();\n", tabs);
@@ -575,7 +583,7 @@ public class TemplateDefinitionWriter {
         if (templateData.fileParent != null) {
             final String baseName = templateData.getBaseName();
 
-            if (baseName != null && !baseName.isEmpty() && TemplateUtil.ROOT_TEMPLATE_NAME.equals(baseName)) {
+            if (baseName != null && !baseName.isEmpty() && !TemplateUtil.ROOT_TEMPLATE_NAME.equals(baseName)) {
                 printStream.println();
                 printStream.printf("%s\t\tsuper.load(iff);\n", tabs);
                 printStream.printf("%s\t\tiff.exitForm();\n", tabs);

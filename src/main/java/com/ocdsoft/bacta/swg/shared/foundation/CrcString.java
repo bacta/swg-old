@@ -34,11 +34,11 @@ public abstract class CrcString implements Comparable<CrcString> {
                     output.append('.');
             } else {
                 // lowercase all other characters
-                output.append(c);
+                output.append(Character.toLowerCase(c));
                 previousIsSlash = false;
             }
         }
-        return output.toString().toLowerCase();
+        return output.toString();
     }
 
     protected int crc;
