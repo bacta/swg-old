@@ -33,7 +33,6 @@ public class ObjectTemplateList extends DataResourceList<ObjectTemplate> {
         crcStringTable.load(iff);
     }
 
-    @Override
     public <T extends ObjectTemplate> T fetch(final int crc) {
         return super.fetch(lookUp(crc));
     }

@@ -33,7 +33,7 @@ public class StructParam<StructType extends ObjectTemplate> extends TemplateBase
         switch (dataType) {
             case SINGLE:
                 final int id = iff.readInt();
-                final ObjectTemplate structTemplate = resourceList.fetch(id);
+                final ObjectTemplate structTemplate = resourceList.fetchByTag(id);
                 Preconditions.checkNotNull(structTemplate);
                 iff.exitChunk();
                 structTemplate.loadFromIff(iff);

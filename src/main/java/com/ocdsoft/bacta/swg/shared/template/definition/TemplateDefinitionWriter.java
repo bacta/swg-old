@@ -40,6 +40,7 @@ public class TemplateDefinitionWriter {
 
         printClassDeclarationOpening(printStream, templateData);
         printTemplateTag(printStream, templateData);
+        printClassConstructorRegistration(printStream, templateData);
         printFields(printStream, templateData);
         printConstructors(printStream, templateData);
         printMethods(printStream, templateData);
@@ -99,6 +100,24 @@ public class TemplateDefinitionWriter {
                 tabs,
                 templateData.getName().toUpperCase(),
                 Tag.convertTagToString(tagInfo.tag));
+        printStream.println();
+    }
+
+    private void printClassConstructorRegistration(final PrintStream printStream, final TemplateData templateData) {
+        printStream.printf("\tprivate static void registerTemplateConstructors(final DataResourceList<ObjectTemplate> objectTemplateList) {\n");
+        printStream.printf("\t\tobjectTemplateList.registerTemplate(%s.TAG_%s, %s::new);\n",
+                templateData.getName(),
+                templateData.getName().toUpperCase(),
+                templateData.getName());
+
+        for (final TemplateData structData : templateData.structList) {
+            printStream.printf("\t\tobjectTemplateList.registerTemplate(%sObjectTemplate.TAG_%s, %sObjectTemplate::new);\n",
+                    structData.getName(),
+                    structData.getName().toUpperCase(),
+                    structData.getName());
+        }
+
+        printStream.printf("\t}\n");
         printStream.println();
     }
 

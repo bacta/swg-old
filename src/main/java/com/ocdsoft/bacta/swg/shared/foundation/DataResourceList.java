@@ -63,7 +63,7 @@ public abstract class DataResourceList<DataType extends DataResource> {
      * @return the blank data resource
      */
     @SuppressWarnings("unchecked")
-    public <T extends DataType> T fetch(final int id) {
+    public <T extends DataType> T fetchByTag(final int id) {
         final BiFunction<String, DataResourceList<DataType>, DataType> binding = createDataResourceMap.get(id);
 
         if (binding == null)
