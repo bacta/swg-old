@@ -10,6 +10,7 @@ import lombok.Getter;
  * bags, etc.
  */
 public class VolumeContainer extends Container {
+    public static final int NO_VOLUME_LIMIT = -1;
     public static int getClassPropertyId() {
         return 0xA5193F23;
     }
