@@ -13,12 +13,12 @@ import java.util.List;
  * Created by crush on 2/8/15.
  */
 public final class DataTable {
-    private static final int ID_DTII = Iff.createChunkId("DTII");
-    private static final int ID_0000 = Iff.createChunkId("0000");
-    private static final int ID_0001 = Iff.createChunkId("0001");
-    private static final int ID_COLS = Iff.createChunkId("COLS");
-    private static final int ID_ROWS = Iff.createChunkId("ROWS");
-    private static final int ID_TYPE = Iff.createChunkId("TYPE");
+    public static final int TAG_DTII = Iff.createChunkId("DTII");
+    public static final int TAG_0000 = Iff.createChunkId("0000");
+    public static final int TAG_0001 = Iff.createChunkId("0001");
+    public static final int TAG_COLS = Iff.createChunkId("COLS");
+    public static final int TAG_ROWS = Iff.createChunkId("ROWS");
+    public static final int TAG_TYPE = Iff.createChunkId("TYPE");
 
     private List<DataTableColumnType> types;
     private List<DataTableCell> cells;
@@ -341,19 +341,19 @@ public final class DataTable {
      * @throws IllegalArgumentException If the DataTable is of an unknown file format.
      */
     public void load(final Iff iff, final DataTableManager dataTableManager) {
-        iff.enterForm(DataTable.ID_DTII);
+        iff.enterForm(DataTable.TAG_DTII);
 
         int version = iff.getCurrentName();
 
-        if (version == DataTable.ID_0000) {
+        if (version == DataTable.TAG_0000) {
             load0000(iff, dataTableManager);
-        } else if (version == DataTable.ID_0001) {
+        } else if (version == DataTable.TAG_0001) {
             load0001(iff, dataTableManager);
         } else {
             Preconditions.checkArgument(false, "UNKNOWN DataTable file format [%s].", Iff.getChunkName(version));
         }
 
-        iff.exitForm(DataTable.ID_DTII);
+        iff.exitForm(DataTable.TAG_DTII);
 
         buildColumnIndexMap();
 
@@ -401,8 +401,8 @@ public final class DataTable {
     }
 
     private void load0000(final Iff iff, final DataTableManager dataTableManager) {
-        iff.enterForm(DataTable.ID_0000);
-        iff.enterChunk(DataTable.ID_COLS);
+        iff.enterForm(DataTable.TAG_0000);
+        iff.enterChunk(DataTable.TAG_COLS);
 
         int numCols = iff.readInt();
 
@@ -413,9 +413,9 @@ public final class DataTable {
             this.columns.add(iff.readString());
         }
 
-        iff.exitChunk(DataTable.ID_COLS);
+        iff.exitChunk(DataTable.TAG_COLS);
 
-        iff.enterChunk(DataTable.ID_TYPE);
+        iff.enterChunk(DataTable.TAG_TYPE);
 
         for (int i = 0; i < numCols; ++i) {
             DataTableColumnType.DataType dataType = DataTableColumnType.DataType.values()[iff.readInt()];
@@ -439,9 +439,9 @@ public final class DataTable {
             }
         }
 
-        iff.exitChunk(DataTable.ID_TYPE);
+        iff.exitChunk(DataTable.TAG_TYPE);
 
-        iff.enterChunk(DataTable.ID_ROWS);
+        iff.enterChunk(DataTable.TAG_ROWS);
 
         int numRows = iff.readInt();
 
@@ -453,14 +453,14 @@ public final class DataTable {
             }
         }
 
-        iff.exitChunk(DataTable.ID_ROWS);
-        iff.exitForm(DataTable.ID_0000);
+        iff.exitChunk(DataTable.TAG_ROWS);
+        iff.exitForm(DataTable.TAG_0000);
     }
 
     private void load0001(Iff iff, final DataTableManager dataTableManager) {
-        iff.enterForm(DataTable.ID_0001);
+        iff.enterForm(DataTable.TAG_0001);
 
-        iff.enterChunk(DataTable.ID_COLS);
+        iff.enterChunk(DataTable.TAG_COLS);
 
         final int numCols = iff.readInt();
 
@@ -471,16 +471,16 @@ public final class DataTable {
             this.columns.add(iff.readString());
         }
 
-        iff.exitChunk(DataTable.ID_COLS);
-        iff.enterChunk(DataTable.ID_TYPE);
+        iff.exitChunk(DataTable.TAG_COLS);
+        iff.enterChunk(DataTable.TAG_TYPE);
 
         for (int i = 0; i < numCols; ++i) {
             this.types.add(new DataTableColumnType(iff.readString(), dataTableManager));
         }
 
-        iff.exitChunk(DataTable.ID_TYPE);
+        iff.exitChunk(DataTable.TAG_TYPE);
 
-        iff.enterChunk(DataTable.ID_ROWS);
+        iff.enterChunk(DataTable.TAG_ROWS);
 
         final int numRows = iff.readInt();
 
@@ -492,8 +492,8 @@ public final class DataTable {
             }
         }
 
-        iff.exitChunk(DataTable.ID_ROWS);
-        iff.exitForm(DataTable.ID_0001);
+        iff.exitChunk(DataTable.TAG_ROWS);
+        iff.exitForm(DataTable.TAG_0001);
 
     }
 
