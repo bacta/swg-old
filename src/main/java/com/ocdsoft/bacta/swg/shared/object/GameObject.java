@@ -62,6 +62,9 @@ public class GameObject extends NetworkObject {
     //private DpvsObjects dpvsObjects;
 
     private int rotations;
+
+    @Getter
+    @Setter
     private Vector scale;
     private Transform objectToParent;
     private Transform objectToWorld;
@@ -70,6 +73,8 @@ public class GameObject extends NetworkObject {
 
     @Getter
     private Container containerProperty;
+
+    @Getter
     private CollisionProperty collisionProperty;
 
     //private SpatialSubdivisionHandle spatialSubdivisionHandle;

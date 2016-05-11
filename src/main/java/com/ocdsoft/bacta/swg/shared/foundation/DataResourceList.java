@@ -34,7 +34,7 @@ public abstract class DataResourceList<DataType extends DataResource> {
      * Maps a template Tag id to a function used to create a template.
      *
      * @param id         id of the template
-     * @param createFunc template creation function
+     * @param createFunc template player function
      */
     public void registerTemplate(final int id, final BiFunction<String, DataResourceList<DataType>, DataType> createFunc) {
         createDataResourceMap.put(id, createFunc);
@@ -160,9 +160,9 @@ public abstract class DataResourceList<DataType extends DataResource> {
      * Changes the default tag->create function binding.
      *
      * @param id            the tag to change
-     * @param createFunc    the creation function to associate with the id
+     * @param createFunc    the player function to associate with the id
      *
-     * @return the old creation function associated with the tag
+     * @return the old player function associated with the tag
      */
     public BiFunction<String, DataResourceList<DataType>, DataType> assignBinding(int id, final BiFunction<String, DataResourceList<DataType>, DataType> createFunc) {
         final BiFunction<String, DataResourceList<DataType>, DataType> oldFunc = createDataResourceMap.get(id);
@@ -175,7 +175,7 @@ public abstract class DataResourceList<DataType extends DataResource> {
      *
      * @param id            the tag to remove
      *
-     * @return the old creation function associated with the tag
+     * @return the old player function associated with the tag
      */
     public BiFunction<String, DataResourceList<DataType>, DataType> removeBinding(int id) {
         return createDataResourceMap.remove(id);

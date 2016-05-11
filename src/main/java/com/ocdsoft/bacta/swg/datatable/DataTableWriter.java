@@ -339,11 +339,11 @@ public final class DataTableWriter {
 
     private boolean writeTable(final NamedDataTable ndt, final String outputFile, boolean optional) {
 
-//        if (!Files.isWritable(Paths.get(outputFile))) {
-//            Preconditions.checkArgument(!optional, String.format("ERROR: The output file is not available for writing: %s", outputFile));
-//            Preconditions.checkArgument(true, String.format("ERROR: The output file is not available for writing: %s", outputFile));
-//            return false;
-//        }
+        if (!Files.isWritable(Paths.get(outputFile))) {
+            Preconditions.checkArgument(!optional, String.format("ERROR: The output file is not available for writing: %s", outputFile));
+            Preconditions.checkArgument(true, String.format("ERROR: The output file is not available for writing: %s", outputFile));
+            return false;
+        }
 
         Iff iff = new Iff(outputFile);
         saveTableToIff(iff, ndt);

@@ -6,7 +6,7 @@ package com.ocdsoft.bacta.swg.name;
 public interface NameService {
 
     public static final String NAME_APPROVED = "name_approved";
-    public static final String NAME_DECLINED_CANT_CREATE_AVATAR = "name_declined_cant_create_avatar";  // Hacking char creation?
+    public static final String NAME_DECLINED_CANT_CREATE_AVATAR = "name_declined_cant_create_avatar";  // Hacking char player?
     public static final String NAME_DECLINED_DEVELOPER = "name_declined_developer";
     public static final String NAME_DECLINED_EMPTY = "name_declined_empty";  //
     public static final String NAME_DECLINED_FICTIONALLY_RESERVED = "name_declined_fictionally_reserved";

@@ -14,8 +14,7 @@ import java.util.List;
 public final class Transform implements ByteBufferWritable {
     public final float[][] matrix = new float[3][4];
 
-    public Transform() {
-    }
+    public Transform() {}
 
     public Transform(final ByteBuffer buffer) {
         final Quaternion q = new Quaternion(buffer);
