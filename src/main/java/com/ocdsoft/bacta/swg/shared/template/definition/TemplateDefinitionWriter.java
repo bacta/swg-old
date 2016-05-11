@@ -356,7 +356,7 @@ public class TemplateDefinitionWriter {
             printStream.printf("%s\t}\n", tabs);
             printStream.println();
 
-            if (!hasMinMax[i])
+            if (!hasMinMax[parameter.type.ordinal()])
                 break;
         }
     }
@@ -463,7 +463,7 @@ public class TemplateDefinitionWriter {
             printStream.printf("%s\t}\n", tabs);
             printStream.println();
 
-            if (!hasMinMax[i])
+            if (!hasMinMax[parameter.type.ordinal()])
                 break;
         }
     }
