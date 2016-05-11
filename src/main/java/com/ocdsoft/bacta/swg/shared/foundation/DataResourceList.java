@@ -90,6 +90,8 @@ public abstract class DataResourceList<DataType extends DataResource> {
             ((ObjectTemplate) newResource).loadFromIff(source);
         }
 
+        postFetch(newResource);
+
         return newResource;
     }
 
@@ -119,6 +121,8 @@ public abstract class DataResourceList<DataType extends DataResource> {
             loadedDataResourceMap.put(newDataResource.getCrcName(), newDataResource);
         }
 
+        //Don't call postFetch here because its called in the iff loader version.
+
         return newDataResource;
     }
 
@@ -147,6 +151,8 @@ public abstract class DataResourceList<DataType extends DataResource> {
         if (dataResource != null && dataResource instanceof ObjectTemplate)
             ((ObjectTemplate) dataResource).loadFromIff(source);
 
+        postFetch(dataResource);
+
         return dataResource;
     }
 
@@ -173,5 +179,14 @@ public abstract class DataResourceList<DataType extends DataResource> {
      */
     public BiFunction<String, DataResourceList<DataType>, DataType> removeBinding(int id) {
         return createDataResourceMap.remove(id);
+    }
+
+    /**
+     * internal callback method that can be overriden on an implementing class to do post fetch logic.
+     *
+     * @param objectTemplate The object template that was loaded.
+     */
+    protected void postFetch(final DataType objectTemplate) {
+        //Do nothing but we don't want to force classes to implement.
     }
 }
